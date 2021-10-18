@@ -1,0 +1,56 @@
+export const partsDefList: any = {
+    'LFFARBArm': {channels: 
+        [
+            'ARBArmDroplinkLFX',
+            'ARBArmDroplinkLFY',
+            'ARBArmDroplinkLFZ',
+            'LCAARBLFX',
+            'LCAARBLFY',
+            'LCAARBLFZ',
+        ],
+    },
+    'RFFARBArm': {channels:
+        [
+            'ARBArmDroplinkRFX',
+            'ARBArmDroplinkRFY',
+            'ARBArmDroplinkRFZ',
+            'LCAARBRFX',
+            'LCAARBRFY',
+            'LCAARBRFZ'
+        ]
+    },
+    'LFUCASlugs': {channels:
+        [
+            'ChassisUCAAftLFX',
+            'ChassisUCAAftLFY',
+            'ChassisUCAAftLFZ',
+            'ChassisUCAForeLFX',
+            'ChassisUCAForeLFY',
+            'ChassisUCAForeLFZ'
+        ]
+    },
+    'RFUCASlugs': {channels:
+        [
+            'ChassisUCAAftRFX',
+            'ChassisUCAAftRFY',
+            'ChassisUCAAftRFZ',
+            'ChassisUCAForeRFX',
+            'ChassisUCAForeRFY',
+            'ChassisUCAForeRFZ'
+        ]
+    },
+    'LFUCA': {channels:
+        [
+            'UCAUBJLFX',
+            'UCAUBJLFY',
+            'UCAUBJLFZ'
+        ]
+    },
+    'RFUCA': {channels:
+        [
+            'UCAUBJRFX',
+            'UCAUBJRFY',
+            'UCAUBJRFZ'
+        ]
+    }
+}
