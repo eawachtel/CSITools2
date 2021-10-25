@@ -57,6 +57,13 @@
                                     [useResizeHandler]="true" [style]="{position: 'relative', width: '100%', height: '100%'}">
                                 </plotly-plot>
                             </div>
+                            <div *ngIf='rfFullPersist.length > 0' style='margin-top: 1vh; padding-left: 1vw;'>
+                                <label>Start Trim Value:</label>
+                                <input style='margin-left: 1vw; text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
+                                matInput type="number"
+                                [(ngModel)] = "rfCutStart"
+                                (keyup) = "onLFCutStart($event);">
+                            </div>
                             
                         </div>
                         <div style='padding-left: 5vw;'>
@@ -91,7 +98,14 @@
                                 <plotly-plot [data]="rfGraph.data" [layout]="rfGraph.layout"
                                     [useResizeHandler]="true" [style]="{position: 'relative', width: '100%', height: '100%', padding:'0'}">
                                 </plotly-plot>
-                            </div>  
+                            </div>
+                            <div *ngIf='lfFullPersist.length > 0' style='margin-top: 1vh; padding-left: 1vw;'>
+                                <label>Start Trim Value:</label>
+                                <input style='margin-left: 1vw; text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
+                                matInput type="number"
+                                [(ngModel)] = "rfCutStart"
+                                (keyup) = "onRFCutStart($event);">
+                            </div>
                         </div>
                 </div>
 
@@ -105,21 +119,75 @@
 
         <mat-tab 
             label="Spring Spline Data">
-            <div>
-                <div style="border:solid;height:100px"
-                    (paste)="data($event)">
-                    paste area
+                <div class='flex-row' style='margin-top: 2vh;'>
+                    <div>
+                        <div style="border:solid; height: 50px; width: 350px; display: flex; align-items: center; justify-content: center;"
+                            (paste)="pasteData($event)">
+                            {{pasteBoxString}}
+                        </div>
+                    </div>
+                    <div class='center-item'>
+                        <button mat-raised-button color="primary" 
+                         (click)= "clearSpringSplineData()">Clear Spring Spline Data
+                        </button>
+                    </div>
                 </div>
-                <div>{{val}}</div>
-                <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-                <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-                    <th mat-header-cell *matHeaderCellDef> {{column}} </th>
-                    <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
-                </ng-container>
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                </table> 
-            </div>
+
+                <div class='flex-row'>
+                    <div style='padding: 10px; border: 2px solid black; border-radius: 10px; width:900px;'>
+                        <plotly-plot [data]="springGraph.data" [layout]="springGraph.layout"
+                            [useResizeHandler]="true" [style]="{position: 'relative', width: '100%', height: '100%', padding:'0'}">
+                        </plotly-plot>
+                    </div>
+                </div>
+
+                <div class='flex-row' style='margin-top:1vh;' *ngIf='pastedSpringData.length > 0'>
+                    <mat-radio-group  [(ngModel)]="springSplineType">
+                        <mat-radio-button style='padding: 2px' value="single">Single Spline</mat-radio-button>
+                        <mat-radio-button style='padding: 2px' value="cut">Cut Spline</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+                
+                <div *ngIf='pastedSpringData.length > 0' class='flex-row'>
+                   
+                     
+                        <!-- <div *ngIf='springSplineType === "single"' style='padding-left: 1vw;' style='padding-left: 1vw;'>
+                            <label>Spline Start: </label>
+                            <input style='text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
+                            matInput type="number"
+                            (keyup) = "onSplineStart($event);">
+                        </div> -->
+                        <div *ngIf='springSplineType === "single"' style='padding-left: 1vw;'>
+                            <label>Spline End: </label>
+                            <input style='text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
+                            matInput type="number"
+                            (keyup) = "onSplineEnd($event);">
+                        </div>
+                        <button *ngIf='splineStart !== undefined && splineEnd !== 0' style='margin-left: 1vw;' mat-raised-button color="primary" 
+                            (click)= "copyFullDataset();">Copy Full Dataset
+                        </button>
+                    
+                    <!-- <div style='padding-left: 1vw;'>
+                        <label>Spline Cut Start: </label>
+                        <input style='text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
+                        matInput type="number"
+                        (keyup) = "onCutStart($event);">
+                    </div>
+                    <div *ngIf='springCutStart !== 0' style='padding-left: 1vw;'>
+                        <label>Spline Cut End: </label>
+                        <input style='text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
+                        matInput type="number"
+                        (keyup) = "onCutEnd($event);">
+                    </div>
+                    <div *ngIf='springCutStart !== 0 && springCutEnd !== 0' style='padding-left: 1vw;'>
+                        <button style='margin-left: 1vw; margin-right: 1vw;' mat-raised-button color="primary" 
+                            (click)= "copyPigtail();">Copy Below Cut
+                        </button>
+                        <button style='margin-left: 1vw; margin-right: 1vw;' mat-raised-button color="primary" 
+                            (click)= "copySpline();">Copy Above Cut
+                        </button>
+                    </div> -->
+                </div>
         </mat-tab>
     </mat-tab-group>
 </div>

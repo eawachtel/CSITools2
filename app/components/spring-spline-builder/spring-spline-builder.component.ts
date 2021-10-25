@@ -24,6 +24,23 @@ interface IplotlyGraph {
   }
 }
 
+interface IplotlySplineGraph {
+  x:number[],
+  y:number[],
+  type:string,
+  name: string,
+  mode:string,
+  marker:{
+    color:string,
+    size:number
+  }, 
+  line:{
+    dash:string,
+    color:string,
+    width:number
+  }
+}
+
 
 @Component({
   selector: 'spring-spline-builder',
@@ -32,8 +49,17 @@ interface IplotlyGraph {
 })
 export class SpringSplineBuilderComponent implements OnInit {
   
-  
-  val:any;
+  lfCutStart:number = 0;
+  rfCutStart:number = 0;
+  splineStart:number = 0;
+  splineEnd:number = 0;
+  springSplineType:string = 'single';
+  springCutStart:number = 0;
+  springCutEnd:number = 0;
+  fullSpringCopy:IxyGraph[] = [];
+  pigtailSpringCopy:IxyGraph[] = [];
+  engagedSpringCopy:IxyGraph[] = [];
+  pasteBoxString:string = 'Click box and Paste Ride Rate Data Here'
   displayedColumns: string[] = [];
   dataSource: any[] = [];
 
@@ -127,7 +153,41 @@ export class SpringSplineBuilderComponent implements OnInit {
       },
     }
   };
+  springGraph = {
+    data: [
+      {
+        x: [0],
+        y: [0],
+        type: 'scattergl',
+        name: '',
+        mode: 'lines+markers',
+        marker: {
+          color: 'blue',
+          size: 2
+        },
+        line: {
+          color: 'blue',
+          width: 2
+        }
+      }
+    ],
+    layout: 
+      {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"}, 
+      title: 'Spring Travel vs Spring Load',
+      xaxis: {title: 'Spring Travel (in)', zeroline: false, showline: true, range: [-1, 1]},
+      yaxis: {title: 'Spring Load (lbf)', zeroline: false, showline: true},
+      margin: {
+        l: 70,
+        r: 50,
+        b: 50,
+        t: 50,
+        pad: 0
+      },
+    },
+  }
   list:any[] = []
+
+  pastedSpringData:IxyGraph[] = [];
 
   constructor(private clipboard: Clipboard) { }
 
@@ -515,28 +575,29 @@ export class SpringSplineBuilderComponent implements OnInit {
     let predictedVal:number;
     
     let polyFitData: number[][] = [];
-      //find value greater that 1in shock travel and get index
-      for (let i = 0; i < data.length; i++){
-        if (data[i].x > -.1) { polyFitData.push([data[i].x, data[i].y]) }; 
-        if (data[i].x > .5) { break };
-      }
-      const result = regression.polynomial(polyFitData, { order: 2 });
-      let predictVals:number[] = result.predict(0);
-      let predictedX:number = predictVals[1]
-      let offsetFactor:number = offset - predictedX;
-      switch(side){
-        case 'LF':
-          this.lfOffsetFactor = offsetFactor;
-          break
-        case 'RF':
-          this.rfOffsetFactor = offsetFactor;
-          break
-      }
-      let offsetData: IxyGraph[] = [];
-      data.forEach((item:IxyGraph) => {
-        offsetData.push({x: item.x, y: item.y + offsetFactor})
-      })
-      return offsetData
+    //find value greater that 1in shock travel and get index
+    for (let i = 0; i < data.length; i++){
+      if (data[i].x > -.1) { polyFitData.push([data[i].x, data[i].y]) }; 
+      if (data[i].x > .5) { break };
+    }
+    const result = regression.polynomial(polyFitData, { order: 2 });
+    let predictVals:number[] = result.predict(0);
+    let predictedX:number = predictVals[1]
+    data.unshift({x: predictVals[0], y: predictVals[1]})
+    let offsetFactor:number = offset - predictedX;
+    switch(side){
+      case 'LF':
+        this.lfOffsetFactor = offsetFactor;
+        break
+      case 'RF':
+        this.rfOffsetFactor = offsetFactor;
+        break
+    }
+    let offsetData: IxyGraph[] = [];
+    data.forEach((item:IxyGraph) => {
+      offsetData.push({x: item.x, y: item.y + offsetFactor})
+    });
+    return offsetData
   }
 
   public onBottomCurveSelect(side:string) {
@@ -621,10 +682,10 @@ export class SpringSplineBuilderComponent implements OnInit {
           y: lfYPersist,
           type: 'scattergl',
           name: 'Pulldown Data',
-          mode: 'lines+markers',
+          mode: 'markers',
           marker: {
             color: 'blue',
-            size: 2
+            size: 3
           },
           line: {
             color: 'blue',
@@ -638,10 +699,8 @@ export class SpringSplineBuilderComponent implements OnInit {
       let lfy:number[] = [];
       plotData.forEach((item:IxyGraph) => {
         if (item.x !== undefined || item.y !== undefined) {
-          // if (item.x > 0){
-            lfx.push(item.x);
-            lfy.push(item.y);
-          // }
+          lfx.push(item.x);
+          lfy.push(item.y);
         }
       });
       let altColor:string = '';
@@ -659,10 +718,10 @@ export class SpringSplineBuilderComponent implements OnInit {
           y: lfYPersist,
           type: 'scattergl',
           name: 'Pulldown Data',
-          mode: 'lines+markers',
+          mode: 'markers',
           marker: {
             color: 'blue',
-            size: 2
+            size: 3
           },
           line: {
             color: 'blue',
@@ -876,7 +935,7 @@ export class SpringSplineBuilderComponent implements OnInit {
    }
 
   public plotRFPulldownData(plotData:IxyGraph[]) {
-
+    let test = plotData
     // create full persist dataset no matter selection
     let rfXMin: number = 0;
     let rfXMax: number = 0;
@@ -898,10 +957,10 @@ export class SpringSplineBuilderComponent implements OnInit {
         y: rfYPersist,
         type: 'scattergl',
         name: 'Pulldown Data',
-        mode: 'lines+markers',
+        mode: 'markers',
         marker: {
           color: 'blue',
-          size: 2
+          size: 3
         },
         line: {
           color: 'blue',
@@ -914,10 +973,8 @@ export class SpringSplineBuilderComponent implements OnInit {
       let rfy:number[] = [];
       plotData.forEach((item:IxyGraph) => {
         if (item.x !== undefined || item.y !== undefined) {
-          if (item.x > 0){
-            rfx.push(item.x);
-            rfy.push(item.y);
-         }
+          rfx.push(item.x);
+          rfy.push(item.y);
         } 
       });
       let altColor:string = '';
@@ -934,10 +991,10 @@ export class SpringSplineBuilderComponent implements OnInit {
         y: rfYPersist,
         type: 'scattergl',
         name: 'Pulldown Data',
-        mode: 'lines+markers',
+        mode: 'markers',
         marker: {
           color: 'blue',
-          size: 2
+          size: 3
         },
         line: {
           color: 'blue',
@@ -981,26 +1038,189 @@ export class SpringSplineBuilderComponent implements OnInit {
     //Call table to copy to RRS
    }
 
-  data(event:ClipboardEvent) {
+  pasteData(event:ClipboardEvent) {
     let clipboardData = event.clipboardData;
     if (clipboardData){
-    let pastedText = clipboardData.getData('text');
-    let row_data = pastedText.split('\n');
-    this.displayedColumns = row_data[0].split('\t');
-    delete row_data[0];
-    // Create table dataSource
-    let data: any[] =[];
+      this.fullSpringCopy = [];
+      this.pigtailSpringCopy = [];
+      this.engagedSpringCopy = [];
+      let pastedText = clipboardData.getData('text');
+      let row_data = pastedText.split('\n');
+      let numberData1: IxyGraph[] =[];
 
-    row_data.forEach(row_data=>{
-        let row:any={};
-      this.displayedColumns.forEach((a:any, index:number)=>{row[a]= row_data.split('\t')[index]});
-      data.push(row);
-    })
-    this.dataSource = data;
-    console.log(this.dataSource)
+      row_data.forEach((item)=>{
+          let row:IxyGraph ={x: 0, y: 0};
+          let item2 = item.substring(0, item.length - 1);
+          let item3 = item2.split('\t').join(',');
+          let item4 = item3.split(',');
+          numberData1.push({x: +item4[0], y: +item4[1]});
+      });
+    this.pastedSpringData = numberData1;
+    this.pasteBoxString = 'Data Pasted'
     }
+    this.plotSpringSplineData();
   }
 
+  public clearSpringSplineData(){
+    this.pasteBoxString = 'Click box and Paste Ride Rate Data Here'
+    this.pastedSpringData = [];
+    this.fullSpringCopy = [];
+    this.pigtailSpringCopy = [];
+    this.engagedSpringCopy = [];
+    this.plotSpringSplineData();
+  }
+
+  public async checkAscendingValues(data:any[]){
+    let dataFinal:any[] = [];
+    dataFinal.push(data[0]); //push first value
+    for (let i = 1; i <= data.length - 1; i++){
+      if (data[i].x > data[i - 1].x){
+        dataFinal.push(data[i]);
+      }
+    }
+    return dataFinal
+  }
+
+  public async copyFullDataset(){
+    this.fullSpringCopy = [];
+    let finalCopy:any[] = [];
+    this.pastedSpringData.forEach((item:IxyGraph, index:number) => {
+      if (item.x >= this.splineStart && item.x <= this.splineEnd){
+        finalCopy.push(item);
+      }
+    });
+    
+    this.fullSpringCopy = await this.checkAscendingValues(finalCopy);
+    let string = '';
+    this.fullSpringCopy.forEach((item) => {
+      let subString = item.x.toString() + '\t' + item.y.toString() + '\r';
+      string = string + subString;
+    });
+    this.clipboard.copy(string);
+    this.plotSpringSplineData();
+  }
+
+  public onLFCutStart(event:any){
+    this.lfCutStart= +event.target.value;
+  }
+
+  public onRFCutStart(event:any){
+    this.rfCutStart= +event.target.value;
+  }
+
+  public onSplineStart(event:any){
+    let cut = +event.target.value;
+    this.springCutStart = cut;
+  }
+
+  public onSplineEnd(event:any){
+    let cut = +event.target.value;
+    this.springCutEnd = cut;
+  }
+
+  public copyPigtail() {
+
+  }
+
+  public copySpline() {
+
+  }
+
+  public plotSpringSplineData() {
+    let springXMin: number = 0;
+    let springXMax: number = 0;
+    let springXPersist:number[] = [];
+    let springYPersist:number[] = [];
+    this.pastedSpringData.forEach((item:IxyGraph) => {
+      if (item.x !== undefined || item.y !== undefined) {
+        springXPersist.push(item.x);
+        springYPersist.push(item.y);
+      }
+    });
+    springXMin = Math.min(...springXPersist) - .1;
+    springXMax = Math.max(...springXPersist) + .1;
+    
+    let dataList:IplotlySplineGraph[] = []
+    if (this.fullSpringCopy.length < 1 && this.springSplineType === 'single'){
+      dataList = [ {
+        x: springXPersist,
+        y: springYPersist,
+        type: 'scattergl',
+        name: 'Spring Spline Data',
+        mode: 'lines+markers',
+        marker: {
+          color: 'blue',
+          size: 3
+        },
+        line: {
+          dash: 'solid',
+          color: 'blue',
+          width: 1
+        }
+      }]
+    }
+
+    if (this.fullSpringCopy.length > 0 && this.springSplineType === 'single'){
+      let x: number[] = [];
+      let y: number[] = [];
+      this.fullSpringCopy.forEach((item:IxyGraph) => {
+        x.push(item.x);
+        y.push(item.y)
+      })
+      dataList = [ 
+        // {
+        //   x: springXPersist,
+        //   y: springYPersist,
+        //   type: 'scattergl',
+        //   name: 'Spring Spline Data',
+        //   mode: 'lines+markers',
+        //   marker: {
+        //     color: 'blue',
+        //     size: 5
+        //   },
+        //   line: {
+        //     dash: 'solid',
+        //     color: 'blue',
+        //     width: 3
+        //   }
+        // },
+        {
+          x: x,
+          y: y,
+          type: 'scattergl',
+          name: 'Copied Spring Spline Data',
+          mode: 'lines+markers',
+          marker: {
+            color: 'black',
+            size: 3
+          },
+          line: {
+            dash: 'solid',
+            color: 'black',
+            width: 1
+          }
+        }
+      ]
+    }
+      
+    this.springGraph = this.springGraph = {
+      data: dataList,
+      layout: 
+        {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"},
+        title: 'Spring Travel vs Spring Load',
+        xaxis: {title: 'Spring Travel (in)', zeroline: false, showline: true, range: [springXMin, springXMax]},
+        yaxis: {title: 'Spring Load (lbf)', zeroline: false, showline: true},
+        margin: {
+          l: 70,
+          r: 50,
+          b: 50,
+          t: 50,
+          pad: 0
+        }
+      }
+    };
+    //Call table to copy to RRS
+  }
 }
 
 

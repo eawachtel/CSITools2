@@ -25,3 +25,11 @@
 table {
   width: 100%;
 }
+
+.center-item{
+  margin-left: 2vw;
+  margin-right: 2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
