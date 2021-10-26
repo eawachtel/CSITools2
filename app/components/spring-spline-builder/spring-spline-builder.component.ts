@@ -49,8 +49,8 @@ interface IplotlySplineGraph {
 })
 export class SpringSplineBuilderComponent implements OnInit {
   
-  lfCutStart:number = 0;
-  rfCutStart:number = 0;
+  lfTrimStart:number = 0;
+  rfTrimStart:number = 0;
   splineStart:number = 0;
   splineEnd:number = 0;
   springSplineType:string = 'single';
@@ -540,6 +540,7 @@ export class SpringSplineBuilderComponent implements OnInit {
 
   public onOffset(event:any, side:string){
     let offset = +event.target.value;
+    if (offset <= 0){return}
     if (side === 'LF') {
       this.lfOffsetValue = offset;
       switch(this.lfCurveSelect){
@@ -569,22 +570,43 @@ export class SpringSplineBuilderComponent implements OnInit {
       }
     }
   }
-
-  public offset(data:IxyGraph[], offset:number, side:string){
+  
+  public fitBotData(data:IxyGraph[], trimStartVar:number){
     const regression = require('regression');
-    let predictedVal:number;
-    
     let polyFitData: number[][] = [];
+    let fitData: IxyGraph[] = [];
+    //Define start of trim if defined
+    let trimStart:number = 0;
+    if (trimStartVar > 0) {trimStart = trimStartVar}
     //find value greater that 1in shock travel and get index
     for (let i = 0; i < data.length; i++){
-      if (data[i].x > -.1) { polyFitData.push([data[i].x, data[i].y]) }; 
-      if (data[i].x > .5) { break };
+      if (data[i].x > trimStart) { polyFitData.push([data[i].x, data[i].y]) }; 
+      if (data[i].x > 1) { break };
     }
     const result = regression.polynomial(polyFitData, { order: 2 });
+    //always add zero to the returned data
     let predictVals:number[] = result.predict(0);
-    let predictedX:number = predictVals[1]
-    data.unshift({x: predictVals[0], y: predictVals[1]})
-    let offsetFactor:number = offset - predictedX;
+    fitData.push({x: predictVals[0], y:predictVals[1]})
+    // if the trim value is greater than .05 add more points in the returned data
+    let count:number = .05;
+    for (let i = 0 ; i < 100 ; i++) {
+      if (count < trimStartVar) {
+        let predictObj:number[] = result.predict(count);
+        fitData.push({x: predictObj[0], y:predictObj[1]});
+        count = count + .05;
+      }
+    }
+
+    return { fitData, predictVals, trimStart }
+  }
+  
+  public offset(data:IxyGraph[], setupWeight:number, side:string, trimStartVar:number, fitObj:{fitData: IxyGraph[], predictVals:number[]}){
+    
+    let offsetFactor:number;
+    let trimStart:number = -.1;
+    if (trimStartVar > 0) {trimStart = trimStartVar}
+    let predictedY:number = fitObj.predictVals[1]
+    if (setupWeight === 0){offsetFactor = 0} else {offsetFactor = setupWeight - predictedY;}
     switch(side){
       case 'LF':
         this.lfOffsetFactor = offsetFactor;
@@ -594,9 +616,18 @@ export class SpringSplineBuilderComponent implements OnInit {
         break
     }
     let offsetData: IxyGraph[] = [];
+    let x:number;
+    let y:number;
     data.forEach((item:IxyGraph) => {
-      offsetData.push({x: item.x, y: item.y + offsetFactor})
+      if (item.x > trimStart) {
+        x = item.x;
+        y = item.y  + offsetFactor;
+        offsetData.push({x: x, y: y})
+      }
     });
+    for (let i = fitObj.fitData.length - 1; i >= 0 ; i--){
+      offsetData.unshift( { x: fitObj.fitData[i].x, y: fitObj.fitData[i].y + offsetFactor} )
+    }
     return offsetData
   }
 
@@ -606,27 +637,24 @@ export class SpringSplineBuilderComponent implements OnInit {
       if (this.rfCurveSelect === 'copied') {
         this.rfCurveSelect = 'full';
         this.plotRFPulldownData(this.rfFullPersist);
-      }
-      if (this.lfOffsetValue > 0) {
-        this.lfBottomMod = this.offset(this.lfBottomPersist, this.lfOffsetValue, side);
       } else {
-        this.lfBottomMod = this.lfBottomPersist;
-      }
-      this.plotLFPulldownData(this.lfBottomMod);
+        let fitObj:{fitData:IxyGraph[], predictVals:number[]} = this.fitBotData(this.lfTopPersist, this.lfTrimStart)
+        this.lfBottomMod = this.offset(this.lfBottomPersist, this.lfOffsetValue, side, this.lfTrimStart, fitObj);
+      } 
+    this.plotLFPulldownData(this.lfBottomMod);
     }
     if (side === 'RF') {
       this.rfCurveSelect = 'bottom';
       if (this.lfCurveSelect === 'copied') {
         this.lfCurveSelect = 'full';
         this.plotLFPulldownData(this.lfFullPersist);
-      }
-      if (this.rfOffsetValue > 0) {
-        this.rfBottomMod = this.offset(this.rfBottomPersist, this.rfOffsetValue, side);
       } else {
-        this.rfBottomMod = this.rfBottomPersist;
-      }
-      this.plotRFPulldownData(this.rfBottomMod);
+        let fitObj:{fitData:IxyGraph[], predictVals:number[]} = this.fitBotData(this.rfTopPersist, this.rfTrimStart)
+        this.rfBottomMod = this.offset(this.rfBottomPersist, this.rfOffsetValue, side, this.rfTrimStart, fitObj);
+      } 
     }
+    this.plotRFPulldownData(this.rfBottomMod);
+    
   }
 
   public onTopCurveSelect(side:string) {
@@ -635,11 +663,9 @@ export class SpringSplineBuilderComponent implements OnInit {
       if (this.rfCurveSelect === 'copied') {
         this.rfCurveSelect = 'full';
         this.plotRFPulldownData(this.rfFullPersist);
-      }
-      if (this.lfOffsetValue > 0) {
-        this.lfTopMod = this.offset(this.lfTopPersist, this.lfOffsetValue, side);
       } else {
-        this.lfTopMod = this.lfTopPersist;
+        let fitObj:{fitData:IxyGraph[], predictVals:number[]} = this.fitBotData(this.lfTopPersist, this.lfTrimStart)
+        this.lfTopMod = this.offset(this.lfTopPersist, this.lfOffsetValue, side, this.lfTrimStart, fitObj);
       }
       this.plotLFPulldownData(this.lfTopMod);
     }
@@ -648,11 +674,9 @@ export class SpringSplineBuilderComponent implements OnInit {
       if (this.lfCurveSelect === 'copied') {
         this.lfCurveSelect = 'full';
         this.plotLFPulldownData(this.lfFullPersist);
-      }
-      if (this.rfOffsetValue > 0) {
-        this.rfTopMod = this.offset(this.rfTopPersist, this.rfOffsetValue, side);
       } else {
-        this.rfTopMod = this.rfTopPersist;
+        let fitObj:{fitData:IxyGraph[], predictVals:number[]} = this.fitBotData(this.rfTopPersist, this.rfTrimStart)
+        this.rfTopMod = this.offset(this.rfTopPersist, this.rfOffsetValue, side, this.rfTrimStart, fitObj);
       }
       this.plotRFPulldownData(this.rfTopMod);
     }
@@ -810,6 +834,7 @@ export class SpringSplineBuilderComponent implements OnInit {
     let nonZeroPersist:any[] = [];
     let indexedLongData:any[]=[];
     let count:number = 0;
+    // Gets Dataset from persisted data
     for (let i = 0; i <= this.rfFullPersist.length - 1; i++) {
       if (this.rfFullPersist[i].x > 0) {
         nonZeroPersist.push(this.rfFullPersist[i])
@@ -846,7 +871,7 @@ export class SpringSplineBuilderComponent implements OnInit {
     return indexedLongData;
   }
 
-  public async copyDataToClip(){
+  public async copyRSSDataToClip(){
     if (this.lfCurveSelect === 'full' || this.rfCurveSelect == 'full'){
       alert('Select a Top and Bottom from each side') 
       return
@@ -1038,7 +1063,7 @@ export class SpringSplineBuilderComponent implements OnInit {
     //Call table to copy to RRS
    }
 
-  pasteData(event:ClipboardEvent) {
+  public pasteData(event:ClipboardEvent) {
     let clipboardData = event.clipboardData;
     if (clipboardData){
       this.fullSpringCopy = [];
@@ -1100,12 +1125,34 @@ export class SpringSplineBuilderComponent implements OnInit {
     this.plotSpringSplineData();
   }
 
-  public onLFCutStart(event:any){
-    this.lfCutStart= +event.target.value;
+  public onLFTrimStart(event:any){
+    this.lfTrimStart= +event.target.value;
+    switch(this.lfCurveSelect){
+        case 'top':
+          this.onTopCurveSelect('LF')
+          break
+        case 'bottom':
+          this.onBottomCurveSelect('LF')
+          break
+        case 'copied':
+          this.lfCurveSelect = 'full'
+          this.plotLFPulldownData(this.lfFullPersist);
+    }
   }
 
-  public onRFCutStart(event:any){
-    this.rfCutStart= +event.target.value;
+  public onRFTrimStart(event:any){
+    this.rfTrimStart= +event.target.value;
+    switch(this.rfCurveSelect){
+      case 'top':
+        this.onTopCurveSelect('RF')
+        break
+      case 'bottom':
+        this.onBottomCurveSelect('RF')
+        break
+      case 'copied':
+        this.rfCurveSelect = 'full'
+        this.plotRFPulldownData(this.rfFullPersist);
+    }
   }
 
   public onSplineStart(event:any){
