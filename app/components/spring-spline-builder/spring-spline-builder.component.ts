@@ -790,18 +790,44 @@ export class SpringSplineBuilderComponent implements OnInit {
     //Call table to copy to RRS
    }
   
-  public solveLFIndexedBottomData(length:number){
-    let nonZeroPersist:any[] = [];
+  public solveLFIndexedBottomData(length:number, data:IxyGraph[]){
     let indexedLongData:any[]=[];
-    let count:number = 0;
+    let count:number;
+    
+    /// Data points from mod dataset to 1 are used for the beginning of the curve
+    for (let i = 0; i <= data.length - 1; i++) {
+      if (data[i].x >= 1) { break };
+        indexedLongData.push(data[i]);
+    }
+    
+    count = indexedLongData.length -1;
+    /// Data points from persisted data set  after 1" with offset applied to y
+    for (let i = this.lfFullPersist.length - 1; i >= 0; i--) {
+      if (this.lfFullPersist[i].x > 1 && count <= length){
+        let obj:IxyGraph = {x: this.lfFullPersist[i].x, y: this.lfFullPersist[i].y + this.lfOffsetFactor};
+        indexedLongData.push(obj);
+        count = count + 1;
+      }
+    }
+
+    return indexedLongData;
+  }
+
+  public solveLFIndexedTopData(length:number, data:IxyGraph[]){
+    let indexedLongData:any[]=[];
+    let count:number;
+    
+    /// Data points from mod dataset to 1 are used for the beginning of the curve
+    for (let i = 0; i <= data.length - 1; i++) {
+      if (data[i].x >= 1 ) { break };
+      indexedLongData.push(data[i]);
+    }
+
+    count = indexedLongData.length -1;
+    /// Data points from persisted data set  after 1" with offset applied to y
     for (let i = 0; i <= this.lfFullPersist.length - 1; i++) {
-      if (this.lfFullPersist[i].x > 0) {
-        nonZeroPersist.push(this.lfFullPersist[i])
-      }
-    }
-    for (let i = nonZeroPersist.length - 1; i > 0; i--) {
-      if (count <= length){
-        let obj:IxyGraph = {x: nonZeroPersist[i].x, y: nonZeroPersist[i].y + this.lfOffsetFactor};
+      if (this.lfFullPersist[i].x > 1 && count <= length){
+        let obj:IxyGraph = {x: this.lfFullPersist[i].x, y: this.lfFullPersist[i].y + this.lfOffsetFactor};
         indexedLongData.push(obj);
         count = count + 1;
       }
@@ -810,18 +836,21 @@ export class SpringSplineBuilderComponent implements OnInit {
     return indexedLongData;
   }
 
-  public solveLFIndexedTopData(length:number){
-    let nonZeroPersist:any[] = [];
+  public solveRFIndexedBottomData(length:number, data:IxyGraph[]){
     let indexedLongData:any[]=[];
-    let count:number = 0;
-    for (let i = 0; i <= this.lfFullPersist.length - 1; i++) {
-      if (this.lfFullPersist[i].x > 0) {
-        nonZeroPersist.push(this.lfFullPersist[i])
-      }
+    let count:number;
+    
+    /// Data points from mod dataset to 1 are used for the beginning of the curve
+    for (let i = 0; i <= data.length - 1; i++) {
+      if (data[i].x >= 1) { break };
+        indexedLongData.push(data[i]);
     }
-    for (let i = 0; i <= nonZeroPersist.length - 1; i++) {
-      if (count <= length){
-        let obj:IxyGraph = {x: nonZeroPersist[i].x, y: nonZeroPersist[i].y + this.lfOffsetFactor};
+    
+    count = indexedLongData.length -1;
+    /// Data points from persisted data set  after 1" with offset applied to y
+    for (let i = this.rfFullPersist.length - 1; i >= 0; i--) {
+      if (this.rfFullPersist[i].x > 1 && count <= length){
+        let obj:IxyGraph = {x: this.rfFullPersist[i].x, y: this.rfFullPersist[i].y + this.rfOffsetFactor};
         indexedLongData.push(obj);
         count = count + 1;
       }
@@ -830,39 +859,21 @@ export class SpringSplineBuilderComponent implements OnInit {
     return indexedLongData;
   }
 
-  public solveRFIndexedBottomData(length:number){
-    let nonZeroPersist:any[] = [];
+  public solveRFIndexedTopData(length:number, data:IxyGraph[]){
     let indexedLongData:any[]=[];
-    let count:number = 0;
-    // Gets Dataset from persisted data
+    let count:number;
+
+    /// Data points from mod dataset to 1 are used for the beginning of the curve
+    for (let i = 0; i <= data.length - 1; i++) {
+      if (data[i].x >= 1 ) { break };
+      indexedLongData.push(data[i]);
+    }
+
+    count = indexedLongData.length -1;
+    /// Data points from persisted data set  after 1" with offset applied to y
     for (let i = 0; i <= this.rfFullPersist.length - 1; i++) {
-      if (this.rfFullPersist[i].x > 0) {
-        nonZeroPersist.push(this.rfFullPersist[i])
-      }
-    }
-    for (let i = nonZeroPersist.length - 1; i > 0; i--) {
-      if (count <= length){
-        let obj:IxyGraph = {x: nonZeroPersist[i].x, y: nonZeroPersist[i].y + this.rfOffsetFactor};
-        indexedLongData.push(obj);
-        count = count + 1;
-      }
-    }
-
-    return indexedLongData;
-  }
-
-  public solveRFIndexedTopData(length:number){
-    let nonZeroPersist:any[] = [];
-    let indexedLongData:any[]=[];
-    let count:number = 0;
-    for (let i = 0; i <= this.rfFullPersist.length - 1; i++) {
-      if (this.rfFullPersist[i].x > 0) {
-        nonZeroPersist.push(this.rfFullPersist[i])
-      }
-    }
-    for (let i = 0; i <= nonZeroPersist.length - 1; i++) {
-      if (count <= length){
-        let obj:IxyGraph = {x: nonZeroPersist[i].x, y: nonZeroPersist[i].y + this.rfOffsetFactor};
+      if (this.rfFullPersist[i].x > 1 && count <= length){
+        let obj:IxyGraph = {x: this.rfFullPersist[i].x, y: this.rfFullPersist[i].y + this.rfOffsetFactor};
         indexedLongData.push(obj);
         count = count + 1;
       }
@@ -900,10 +911,10 @@ export class SpringSplineBuilderComponent implements OnInit {
     if (lfData.length > rfData.length) {
       switch(this.rfCurveSelect) {
         case 'bottom':
-          indexedLongData = this.solveRFIndexedBottomData(lfData.length);
+          indexedLongData = this.solveRFIndexedBottomData(lfData.length, rfData);
           break;
         case 'top':
-          indexedLongData = this.solveRFIndexedTopData(lfData.length);
+          indexedLongData = this.solveRFIndexedTopData(lfData.length, rfData);
           break;
       }
       this.lfCurveSelect = 'copied'
@@ -919,10 +930,10 @@ export class SpringSplineBuilderComponent implements OnInit {
     if (rfData.length > lfData.length) {
       switch(this.lfCurveSelect) {
         case 'bottom':
-          indexedLongData = this.solveLFIndexedBottomData(rfData.length);
+          indexedLongData = this.solveLFIndexedBottomData(rfData.length, lfData);
           break;
         case 'top':
-          indexedLongData = this.solveLFIndexedTopData(rfData.length);
+          indexedLongData = this.solveLFIndexedTopData(rfData.length, lfData);
           break;
       }
       this.rfCurveSelect = 'copied'
