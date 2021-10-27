@@ -31,8 +31,12 @@ interface IplotlyGraph {
 })
 export class EnterPulldownComponent implements OnInit {
 
-  lfTrimStart:number = 0;
-  rfTrimStart:number = 0;
+  lfShockChannelName:string = '';
+  lfLoadChannelName:string = '';
+  rfShockChannelName:string = '';
+  rfLoadChannelName:string = '';
+  lfTrimStart:number = .2;
+  rfTrimStart:number = .2;
   fileTypeSelect: string = 'single';
   pulldownDataPersist: {'LF Shock Travel': number, 'LF Wheel Load': number, 'RF Shock Travel': number, 'RF Wheel Load': number}[]= [];
   side:string|undefined = undefined;
@@ -194,7 +198,7 @@ export class EnterPulldownComponent implements OnInit {
     let keys = keyList3.split(',');
     let usedChannelsDict: any = {}
     let usedChannelsIndexList: number[] = [];
-    let usedChannels: string[] = ['LF Shock Travel', 'LF Wheel Load'];
+    let usedChannels: string[] = ['LF Shock Travel', 'Damper_Disp_LF', 'LF Wheel Load', 'Wheel_Load_Vert_LF'];
     keys.forEach((item: string, index:number) => {
       if (usedChannels.includes(item)) {
         let key = index
@@ -202,6 +206,8 @@ export class EnterPulldownComponent implements OnInit {
         usedChannelsIndexList.push(index);
       }
     });
+
+    let defineNames:string = await this.defineChannelNames(usedChannelsDict);
 
     //create clean dataset of numbers
     data1.splice(0, 1)
@@ -258,7 +264,7 @@ export class EnterPulldownComponent implements OnInit {
     let keys = keyList3.split(',');
     let usedChannelsDict: any = {}
     let usedChannelsIndexList: number[] = [];
-    let usedChannels: string[] = ['RF Shock Travel', 'RF Wheel Load'];
+    let usedChannels: string[] = ['RF Shock Travel', 'Damper_Disp_RF', 'RF Wheel Load', 'Wheel_Load_Vert_RF'];
     keys.forEach((item: string, index:number) => {
       if (usedChannels.includes(item)) {
         let key = index
@@ -267,6 +273,8 @@ export class EnterPulldownComponent implements OnInit {
       }
     });
 
+    let defineNames:string = await this.defineChannelNames(usedChannelsDict);
+    
     //create clean dataset of numbers
     data1.splice(0, 1)
     let numberData1:number[][] = [];
@@ -315,7 +323,26 @@ export class EnterPulldownComponent implements OnInit {
     this.plotRFPulldownData(this.rfFullPersist);
   }
 
-  public parseSingleFileString(data1:any[]){
+  public async defineChannelNames(usedChannelsDict:any){
+
+    usedChannelsDict = Object.values(usedChannelsDict)
+    //Define LF Shock Channel Name
+    if (usedChannelsDict.includes('LF Shock Travel')) { this.lfShockChannelName = 'LF Shock Travel' }
+    if (usedChannelsDict.includes('Damper_Disp_LF')) { this.lfShockChannelName = 'Damper_Disp_LF' }
+    //Define LF Load
+    if (usedChannelsDict.includes('LF Wheel Load')) { this.lfLoadChannelName = 'LF Wheel Load' }
+    if (usedChannelsDict.includes('Wheel_Load_Vert_LF')) { this.lfLoadChannelName = 'Wheel_Load_Vert_LF' }
+    //Define RF Shock Channel Name
+    if (usedChannelsDict.includes('RF Shock Travel')) { this.rfShockChannelName = 'RF Shock Travel' }
+    if (usedChannelsDict.includes('Damper_Disp_RF')) { this.rfShockChannelName = 'Damper_Disp_RF' }
+     //Define RF Load
+     if (usedChannelsDict.includes('RF Wheel Load')) { this.rfLoadChannelName = 'RF Wheel Load' }
+     if (usedChannelsDict.includes('Wheel_Load_Vert_RF')) { this.rfLoadChannelName = 'Wheel_Load_Vert_RF' }
+
+    return 'success'
+  }
+
+  public async parseSingleFileString(data1:any[]){
     //Takes read text and get list of keys or headers from pulldown file
     let keyList = data1[0];
     let keyList2 = keyList.substring(0, keyList.length - 1);
@@ -323,7 +350,8 @@ export class EnterPulldownComponent implements OnInit {
     let keys = keyList3.split(',');
     let usedChannelsDict: any = {}
     let usedChannelsIndexList: number[] = [];
-    let usedChannels: string[] = ['LF Shock Travel', 'LF Wheel Load', 'RF Shock Travel', 'RF Wheel Load'];
+    let usedChannels: string[] = ['LF Shock Travel', 'Damper_Disp_LF', 'LF Wheel Load', 'Wheel_Load_Vert_LF', 
+    'RF Shock Travel', 'Damper_Disp_RF', 'RF Wheel Load', 'Wheel_Load_Vert_RF'];
     keys.forEach((item: string, index:number) => {
       if (usedChannels.includes(item)) {
         let key = index
@@ -331,6 +359,8 @@ export class EnterPulldownComponent implements OnInit {
         usedChannelsIndexList.push(index);
       }
     });
+
+    let defineNames:string = await this.defineChannelNames(usedChannelsDict);
 
     //create clean dataset of numbers
     data1.splice(0, 1)
@@ -393,7 +423,7 @@ export class EnterPulldownComponent implements OnInit {
     //Full Data Set
     let dataNew:any[] = [];
     data.forEach((item:any) => {
-      let obj: IxyGraph = {'x': item['LF Shock Travel'], 'y':item['LF Wheel Load']};
+      let obj: IxyGraph = {'x': item[this.lfShockChannelName], 'y':item[this.lfLoadChannelName]};
       if (obj.x !== undefined || obj.y !== undefined) {
         dataNew.push(obj);
       }
@@ -406,7 +436,7 @@ export class EnterPulldownComponent implements OnInit {
     //Full Data Set
     let dataNew:any[] = [];
     data.forEach((item:any) => {
-      let obj: IxyGraph = {'x': item['RF Shock Travel'], 'y':item['RF Wheel Load']};
+      let obj: IxyGraph = {'x': item[this.rfShockChannelName], 'y':item[this.rfLoadChannelName]};
       if (obj.x !== undefined || obj.y !== undefined) {
         dataNew.push(obj);
       }
@@ -418,7 +448,8 @@ export class EnterPulldownComponent implements OnInit {
   public async separateLFRFData(){
     let testObj: any = this.pulldownDataPersist[0];
     let testObjList: string[] = Object.keys(testObj);
-    if (testObjList.includes('LF Shock Travel') && testObjList.includes('LF Wheel Load')){
+    if (testObjList.includes('LF Shock Travel') || testObjList.includes('LF Wheel Load') || 
+    testObjList.includes('Damper_Disp_LF') || testObjList.includes('Wheel_Load_Vert_LF')){
       this.lfFullPersist = [];
       this.lfTopPersist = [];
       this.lfBottomPersist = [];
@@ -441,7 +472,8 @@ export class EnterPulldownComponent implements OnInit {
       // this.lfBottomMod = this.lfBottomPersist;
     }
     
-    if (testObjList.includes('RF Shock Travel') && testObjList.includes('RF Wheel Load')){
+    if (testObjList.includes('RF Shock Travel') || testObjList.includes('RF Wheel Load') || 
+    testObjList.includes('Damper_Disp_RF') || testObjList.includes('Wheel_Load_Vert_RF')){
       this.rfFullPersist = [];
       this.rfTopPersist = [];
       this.rfBottomPersist = [];
@@ -508,7 +540,7 @@ export class EnterPulldownComponent implements OnInit {
     let polyFitData: number[][] = [];
     let fitData: IxyGraph[] = [];
     //Define start of trim if defined
-    let trimStart:number = 0;
+    let trimStart:number = .2;
     if (trimStartVar > 0) {trimStart = trimStartVar}
     //find value greater that 1in shock travel and get index
     for (let i = 0; i < data.length; i++){
