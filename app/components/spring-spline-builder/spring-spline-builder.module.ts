@@ -13,11 +13,14 @@ import { PlotlyModule } from 'angular-plotly.js';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 import {SpringSplineBuilderComponent} from './spring-spline-builder.component'
-
+import { EnterPulldownComponent } from '../enter-pulldown/enter-pulldown.component'
+import { SplineCreatorComponent } from '../spline-creator/spline-creator.component'
 
 @NgModule({
   declarations: [
-    SpringSplineBuilderComponent
+    SpringSplineBuilderComponent,
+    EnterPulldownComponent,
+    SplineCreatorComponent
   ],
   imports: [
     CommonModule,
@@ -31,7 +34,9 @@ import {SpringSplineBuilderComponent} from './spring-spline-builder.component'
     FormsModule
   ],
   exports: [
-    SpringSplineBuilderComponent
+    SpringSplineBuilderComponent,
+    // EnterPulldownComponent,
+    // SplineCreatorComponent
   ]
 })
 export class SpringSplineBuilderModule { }

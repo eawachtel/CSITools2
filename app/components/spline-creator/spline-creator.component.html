@@ -1,0 +1,45 @@
+
+<div class='flex-row' style='margin-top: 2vh;'>
+    <div>
+        <div style="border:solid; height: 50px; width: 350px; display: flex; align-items: center; justify-content: center;"
+            (paste)="pasteData($event)">
+            {{pasteBoxString}}
+        </div>
+    </div>
+    <div class='center-item'>
+        <button mat-raised-button color="primary" 
+         (click)= "clearSpringSplineData()">Clear Spring Spline Data
+        </button>
+    </div>
+</div>
+
+<div class='flex-row'>
+    <div style='padding: 10px; border: 2px solid black; border-radius: 10px; width:900px;'>
+        <plotly-plot [data]="springGraph.data" [layout]="springGraph.layout"
+            [useResizeHandler]="true" [style]="{position: 'relative', width: '100%', height: '100%', padding:'0'}">
+        </plotly-plot>
+    </div>
+</div>
+
+<div class='flex-row' style='margin-top:1vh;' *ngIf='pastedSpringDataPersist.length > 0'>
+    <mat-radio-group  [(ngModel)]="springSplineType">
+        <mat-radio-button style='padding: 2px' value="single">Single Spline</mat-radio-button>
+        <mat-radio-button style='padding: 2px' value="cut">Cut Spline</mat-radio-button>
+    </mat-radio-group>
+</div>
+
+<div *ngIf='pastedSpringDataPersist.length > 0' class='flex-row'>
+        <div *ngIf='springSplineType === "single"' style='padding-left: 1vw;'>
+            <label>Spline End: </label>
+            <input style='text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
+            matInput type="number"
+            [(ngModel)] = 'splineEnd'
+            (keyup) = "onSplineEnd($event);"
+            (click) = "onSplineEnd($event);">
+        </div>
+        <button *ngIf='springSplineType === "single"'style='margin-left: 1vw;' mat-raised-button color="primary" 
+            (click)= "copyFullDataset();">Copy Full Dataset
+        </button>
+    
+ 
+</div>

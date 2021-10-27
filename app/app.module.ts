@@ -20,11 +20,14 @@ import { BatchCreationComponent } from './components/batch-creation/batch-creati
 import { SubmitDialogModule } from '../app/components/submit-dialog/submit-dialog.module';
 import { SpringSplineBuilderModule } from './components/spring-spline-builder/spring-spline-builder.module';
 
+
+
 @NgModule({
   declarations: [
     AppComponent,
     DOEFactorMatrixComponent,
     BatchCreationComponent,
+    
   ],
   imports: [
     BrowserModule,
