@@ -638,7 +638,7 @@ export class SpringSplineBuilderComponent implements OnInit {
         this.rfCurveSelect = 'full';
         this.plotRFPulldownData(this.rfFullPersist);
       } else {
-        let fitObj:{fitData:IxyGraph[], predictVals:number[]} = this.fitBotData(this.lfTopPersist, this.lfTrimStart)
+        let fitObj:{fitData:IxyGraph[], predictVals:number[]} = this.fitBotData(this.lfBottomPersist, this.lfTrimStart)
         this.lfBottomMod = this.offset(this.lfBottomPersist, this.lfOffsetValue, side, this.lfTrimStart, fitObj);
       } 
     this.plotLFPulldownData(this.lfBottomMod);
@@ -649,7 +649,7 @@ export class SpringSplineBuilderComponent implements OnInit {
         this.lfCurveSelect = 'full';
         this.plotLFPulldownData(this.lfFullPersist);
       } else {
-        let fitObj:{fitData:IxyGraph[], predictVals:number[]} = this.fitBotData(this.rfTopPersist, this.rfTrimStart)
+        let fitObj:{fitData:IxyGraph[], predictVals:number[]} = this.fitBotData(this.rfBottomPersist, this.rfTrimStart)
         this.rfBottomMod = this.offset(this.rfBottomPersist, this.rfOffsetValue, side, this.rfTrimStart, fitObj);
       } 
     }
