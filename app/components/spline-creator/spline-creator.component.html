@@ -56,6 +56,12 @@
         <button *ngIf='springSplineType === "single"' style='margin-left: 1vw;' mat-raised-button color="primary" 
             (click)= "copyFullDataset();">Copy Full Dataset
         </button>
+        <button *ngIf='springSplineType === "cut" && splineCut !== 0' style='margin-left: 1vw;' mat-raised-button color="primary" 
+            (click)= "copyPigtail();">Copy Ride Rate Override
+        </button>
+        <button *ngIf='springSplineType === "cut" && splineCut !== 0' style='margin-left: 1vw;' mat-raised-button color="primary" 
+            (click)= "copySpline();">Copy Engaged Spring Spline
+        </button>
     
  
 </div>

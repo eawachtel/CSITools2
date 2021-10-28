@@ -191,19 +191,6 @@ export class SplineCreatorComponent implements OnInit {
     return dataFinal
   }
 
-  public async copyFullDataset(){
-    this.fullSpringCopy = [];
-    let finalCopy:any[] = [];
-    this.fullSpringCopy = await this.checkAscendingValues(this.pastedSpringDataMod);
-    let string = '';
-    this.fullSpringCopy.forEach((item) => {
-      let subString = item.x.toString() + '\t' + item.y.toString() + '\r';
-      string = string + subString;
-    });
-    this.clipboard.copy(string);
-    this.plotSpringSplineData();
-  }
-
   public extendRideRateOverride(data:IxyGraph[]){
     const regression = require('regression');
     
@@ -275,6 +262,7 @@ export class SplineCreatorComponent implements OnInit {
     });
     return cutData
   }
+
   public async onSplineEnd(event:any){
     let cut = +event.target.value;
     if (cut === 0){ return };
@@ -293,12 +281,45 @@ export class SplineCreatorComponent implements OnInit {
 
   }
 
-  public copyPigtail() {
+  public async copySpring(data:IxyGraph[]){
+    let array:IxyGraph[] = await this.checkAscendingValues(data);
+    let string = '';
+    array.forEach((item) => {
+      let subString = item.x.toString() + '\t' + item.y.toString() + '\r';
+      string = string + subString;
+    });
 
+    return string
   }
 
-  public copySpline() {
+  public async copyFullDataset(){
+    let string:string =  await this.copySpring(this.pastedSpringDataMod);
+    this.clipboard.copy(string);
+  }
 
+  public async copyPigtail() {
+    let string:string = await this.copySpring(this.rideRateOverride);
+    this.clipboard.copy(string);
+  }
+
+  public async copySpline() {
+    let arrayList:IxyGraph[] = await this.checkAscendingValues(this.engagedSpline);
+    let xZero:number = arrayList[0].x;
+    let yZero:number = arrayList[0].y;
+    let normArrayList:IxyGraph[] = [];
+    
+    arrayList.forEach((item) => {
+      let obj:IxyGraph = {x: item.x - xZero, y: item.y - yZero};
+      normArrayList.push(obj);
+    });
+    
+    let string = '';
+    normArrayList.forEach((item) => {
+      let subString = item.x.toString() + '\t' + item.y.toString() + '\r';
+      string = string + subString;
+    });
+
+    this.clipboard.copy(string);
   }
 
   public plotSpringSplineData() {
