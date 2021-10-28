@@ -35,11 +35,11 @@ export class SplineCreatorComponent implements OnInit {
   splineStart:number = 0;
   
   springSplineType:string = 'single';
-  springCutStart:number = 0;
-  springCutEnd:number = 0;
-  fullSpringCopy:IxyGraph[] = [];
-  pigtailSpringCopy:IxyGraph[] = [];
-  engagedSpringCopy:IxyGraph[] = [];
+  // springCutStart:number = 0;
+  // springCutEnd:number = 0;
+  // fullSpringCopy:IxyGraph[] = [];
+  // pigtailSpringCopy:IxyGraph[] = [];
+  // engagedSpringCopy:IxyGraph[] = [];
   pasteBoxString:string = 'Click box and Paste Ride Rate Data Here'
   displayedColumns: string[] = [];
   dataSource: any[] = [];
@@ -135,9 +135,9 @@ export class SplineCreatorComponent implements OnInit {
     this.splineCut = 0;
     let clipboardData = event.clipboardData;
     if (clipboardData){
-      this.fullSpringCopy = [];
-      this.pigtailSpringCopy = [];
-      this.engagedSpringCopy = [];
+      // this.fullSpringCopy = [];
+      // this.pigtailSpringCopy = [];
+      // this.engagedSpringCopy = [];
       let pastedText = clipboardData.getData('text');
       let row_data = pastedText.split('\n');
       let numberData1: IxyGraph[] =[];
@@ -162,7 +162,7 @@ export class SplineCreatorComponent implements OnInit {
     this.pasteBoxString = 'Click box and Paste Ride Rate Data Here'
     this.pastedSpringDataPersist = [];
     this.pastedSpringDataMod = [];
-    this.fullSpringCopy = [];
+    // this.fullSpringCopy = [];
     this.rideRateOverride = [];
     this.engagedSpline = [];
     this.splineCut = 0;
@@ -192,16 +192,18 @@ export class SplineCreatorComponent implements OnInit {
   }
 
   public extendRideRateOverride(data:IxyGraph[]){
+    let lastX:number = data[data.length - 1].x;
     const regression = require('regression');
-    
     let fitData:number[][] = [];
     data.forEach((item) => {
-      fitData.push([item.x, item.y]);
+      if (item.x >= lastX - 1){
+        fitData.push([item.x, item.y]);
+      }
     });
 
     const result = regression.polynomial(fitData, { order: 2 });
     
-    let lastX:number = data[data.length - 1].x;
+    
     let count:number = lastX + .05;
     for (let i = 1 ; i < data.length - 1 ; i++) {
       if (count <= lastX + .5) {
