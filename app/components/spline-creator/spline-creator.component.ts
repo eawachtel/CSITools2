@@ -77,7 +77,10 @@ export class SplineCreatorComponent implements OnInit {
     },
   }
   list:any[] = []
+  splineCut:number = 0;
   splineEnd:number = 0;
+  rideRateOverride:IxyGraph[] = [];
+  engagedSpline:IxyGraph[] = [];
   pastedSpringDataPersist:IxyGraph[] = [];
   pastedSpringDataMod:IxyGraph[] = [];
 
@@ -129,6 +132,7 @@ export class SplineCreatorComponent implements OnInit {
   }
 
   public async pasteData(event:ClipboardEvent) {
+    this.splineCut = 0;
     let clipboardData = event.clipboardData;
     if (clipboardData){
       this.fullSpringCopy = [];
@@ -156,11 +160,24 @@ export class SplineCreatorComponent implements OnInit {
 
   public clearSpringSplineData(){
     this.pasteBoxString = 'Click box and Paste Ride Rate Data Here'
+    this.pastedSpringDataPersist = [];
     this.pastedSpringDataMod = [];
     this.fullSpringCopy = [];
-    this.pigtailSpringCopy = [];
-    this.engagedSpringCopy = [];
+    this.rideRateOverride = [];
+    this.engagedSpline = [];
+    this.splineCut = 0;
     this.plotSpringSplineData();
+  }
+
+  public radialClick(){
+
+    setTimeout(() => {
+    // this.springSplineType;
+    // this.rideRateOverride = [];
+    // this.engagedSpline = [];
+    this.plotSpringSplineData();
+    }, 100);
+
   }
 
   public async checkAscendingValues(data:any[]){
@@ -187,16 +204,68 @@ export class SplineCreatorComponent implements OnInit {
     this.plotSpringSplineData();
   }
 
-  
+  public extendRideRateOverride(data:IxyGraph[]){
+    const regression = require('regression');
+    
+    let fitData:number[][] = [];
+    data.forEach((item) => {
+      fitData.push([item.x, item.y]);
+    });
 
-  public onSplineStart(event:any){
-    let cut = +event.target.value;
-    this.springCutStart = cut;
+    const result = regression.polynomial(fitData, { order: 2 });
+    
+    let lastX:number = data[data.length - 1].x;
+    let count:number = lastX + .05;
+    for (let i = 1 ; i < data.length - 1 ; i++) {
+      if (count <= lastX + .5) {
+        let predictObj:number[] = result.predict(count);
+        data.push({x: predictObj[0], y:predictObj[1]});
+        count = count + .05;
+      }
+    }
+
+    return data
   }
 
-  public onSplineEnd(event:any){
-    let cut = +event.target.value;
-    this.splineEnd = cut;
+  public async onSplineCut(event:any){
+    if (event !== 'event'){
+      let cut = +event.target.value;
+      this.splineCut = cut;
+    }
+    
+    if (this.splineCut === 0){return};
+    if (this.splineEnd === 0 ||
+      this.splineCut === null || this.splineCut === undefined 
+      || this.splineCut === null || this.splineCut === undefined)
+      { alert ('Issue with undefined point or point(s) defined as 0')
+        return};
+    if (this.splineEnd < this.splineCut){
+      alert('Spline end needs to be greater than the spline cut');
+      return;
+    }
+    
+    let rideRateOverride:IxyGraph[] = [];
+    // Ride Rate Override portion (pittail)
+    this.rideRateOverride = [];
+    this.pastedSpringDataPersist.forEach((item) => {
+      if (this.splineCut !== undefined && item.x <= this.splineCut){
+        rideRateOverride.push(item)
+      }
+    });
+    this.rideRateOverride = await this.extendRideRateOverride(rideRateOverride);
+    
+    let engagedSpline:IxyGraph[] = [];
+    // Spring Spline portion (spring)
+    this.pastedSpringDataPersist.forEach((item:IxyGraph) => {
+      if (this.splineCut < item.x && item.x < this.splineEnd){
+        engagedSpline.push(item);
+      }
+    });
+    this.engagedSpline = engagedSpline;
+    this.plotSpringSplineData();
+  }
+
+  public async trimEndFullData(){
     let cutData:IxyGraph[] = [];
     this.pastedSpringDataMod = [];
     this.pastedSpringDataPersist.forEach((item) => {
@@ -204,8 +273,24 @@ export class SplineCreatorComponent implements OnInit {
         cutData.push(item)
       }
     });
-    this.pastedSpringDataMod = cutData;
-    this.plotSpringSplineData();
+    return cutData
+  }
+  public async onSplineEnd(event:any){
+    let cut = +event.target.value;
+    if (cut === 0){ return };
+    this.splineEnd = cut;
+    
+    // if (this.springSplineType === "single") {
+      this.onSplineCut('event');
+      this.pastedSpringDataMod = await this.trimEndFullData();
+      this.plotSpringSplineData();
+    // }
+
+    // if (this.springSplineType === 'cut'){
+      // this.pastedSpringDataMod = await this.trimEndFullData();
+      // this.onSplineCut('event');
+    // }
+
   }
 
   public copyPigtail() {
@@ -221,7 +306,7 @@ export class SplineCreatorComponent implements OnInit {
     let springXMax: number = 0;
     let springXPersist:number[] = [];
     let springYPersist:number[] = [];
-    this.pastedSpringDataMod.forEach((item:IxyGraph) => {
+    this.pastedSpringDataPersist.forEach((item:IxyGraph) => {
       if (item.x !== undefined || item.y !== undefined) {
         springXPersist.push(item.x);
         springYPersist.push(item.y);
@@ -232,22 +317,116 @@ export class SplineCreatorComponent implements OnInit {
     
     let dataList:IplotlySplineGraph[] = []
     
-    dataList = [ {
-      x: springXPersist,
-      y: springYPersist,
-      type: 'scattergl',
-      name: 'Spring Spline Data',
-      mode: 'lines+markers',
-      marker: {
-        color: 'blue',
-        size: 3
+    if (this.springSplineType === 'single'){
+
+      let fullModX:number[] = [];
+      let fullModY:number[] = [];
+      this.pastedSpringDataMod.forEach((item:IxyGraph) => {
+        fullModX.push(item.x);
+        fullModY.push(item.y);
+      });
+
+      dataList = [ {
+        x: springXPersist,
+        y: springYPersist,
+        type: 'scattergl',
+        name: 'Spring Spline Data',
+        mode: 'lines+markers',
+        marker: {
+          color: 'blue',
+          size: 3
+        },
+        line: {
+          dash: 'solid',
+          color: 'blue',
+          width: 1
+        }
       },
-      line: {
-        dash: 'solid',
-        color: 'blue',
-        width: 1
+      {
+        x: fullModX,
+        y: fullModY,
+        type: 'scattergl',
+        name: 'Selected Spring Data',
+        mode: 'lines+markers',
+        marker: {
+          color: 'red',
+          size: 3
+        },
+        line: {
+          dash: 'dash',
+          color: 'red',
+          width: 3
+        }
       }
-    }]
+      ]
+    }
+
+    if (this.springSplineType === 'cut'){
+
+      let rroX:number[] = [];
+      let rroY:number[] = [];
+      this.rideRateOverride.forEach((item:IxyGraph) => {
+        rroX.push(item.x);
+        rroY.push(item.y);
+      });
+
+      let eX:number[] = [];
+      let eY:number[] = [];
+      this.engagedSpline.forEach((item:IxyGraph) => {
+        eX.push(item.x);
+        eY.push(item.y);
+      });
+
+      dataList = [ {
+        x: springXPersist,
+        y: springYPersist,
+        type: 'scattergl',
+        name: 'Spring Spline Data',
+        mode: 'lines+markers',
+        marker: {
+          color: 'blue',
+          size: 3
+        },
+        line: {
+          dash: 'solid',
+          color: 'blue',
+          width: 1
+        }
+      },
+      {
+        x: rroX,
+        y: rroY,
+        type: 'scattergl',
+        name: 'Ride Rate Override Data',
+        mode: 'lines',
+        marker: {
+          color: 'red',
+          size: 3
+        },
+        line: {
+          dash: 'dash',
+          color: 'red',
+          width: 3
+        }
+      },
+      {
+        x: eX,
+        y: eY,
+        type: 'scattergl',
+        name: 'Spring Spline Data',
+        mode: 'lines',
+        marker: {
+          color: 'black',
+          size: 3
+        },
+        line: {
+          dash: 'dash',
+          color: 'black',
+          width: 3
+        }
+      }
+      ]
+    }
     
 
     this.springGraph = this.springGraph = {

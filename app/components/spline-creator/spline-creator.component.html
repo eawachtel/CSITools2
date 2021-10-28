@@ -23,13 +23,29 @@
 
 <div class='flex-row' style='margin-top:1vh;' *ngIf='pastedSpringDataPersist.length > 0'>
     <mat-radio-group  [(ngModel)]="springSplineType">
-        <mat-radio-button style='padding: 2px' value="single">Single Spline</mat-radio-button>
-        <mat-radio-button style='padding: 2px' value="cut">Cut Spline</mat-radio-button>
+        <mat-radio-button 
+            style='padding: 2px'
+            value="single"
+            (click) = 'radialClick();'>Single Spline
+        </mat-radio-button>
+        <mat-radio-button 
+            style='padding: 2px'
+            value="cut"
+            (click) = 'radialClick();'>Cut Spline
+        </mat-radio-button>
     </mat-radio-group>
 </div>
 
 <div *ngIf='pastedSpringDataPersist.length > 0' class='flex-row'>
-        <div *ngIf='springSplineType === "single"' style='padding-left: 1vw;'>
+        <div *ngIf='springSplineType === "cut"' style='padding-left: 1vw;'>
+            <label>Spline Cut: </label>
+            <input style='text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
+            matInput type="number"
+            [(ngModel)] = 'splineCut'
+            (keyup) = "onSplineCut($event);"
+            (click) = "onSplineCut($event);">
+        </div>
+        <div *ngIf='springSplineType === "single"  || springSplineType === "cut"' style='padding-left: 1vw;'>
             <label>Spline End: </label>
             <input style='text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
             matInput type="number"
@@ -37,7 +53,7 @@
             (keyup) = "onSplineEnd($event);"
             (click) = "onSplineEnd($event);">
         </div>
-        <button *ngIf='springSplineType === "single"'style='margin-left: 1vw;' mat-raised-button color="primary" 
+        <button *ngIf='springSplineType === "single"' style='margin-left: 1vw;' mat-raised-button color="primary" 
             (click)= "copyFullDataset();">Copy Full Dataset
         </button>
     
