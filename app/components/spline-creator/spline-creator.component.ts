@@ -202,8 +202,6 @@ export class SplineCreatorComponent implements OnInit {
     });
 
     const result = regression.polynomial(fitData, { order: 2 });
-    
-    
     let count:number = lastX + .05;
     for (let i = 1 ; i < data.length - 1 ; i++) {
       if (count <= lastX + .5) {
