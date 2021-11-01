@@ -10,4 +10,12 @@ export class AppComponent {
   selectedApp = '';
   selectedAppFunction = '';
   
+  setSpringTool(){
+    this.selectedApp = 'Spring Spline Builder';
+  }
+
+  setDOETool(){
+    this.selectedApp = 'DOE';
+  }
+
 }

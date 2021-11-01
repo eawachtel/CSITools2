@@ -1,33 +1,33 @@
 
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
 
-  .flex-container{
-    display: flex; 
-  }
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+}
 
-  .flex-row {
-     display: flex; 
-     flex-direction: row;
-     flex-flow: column wrap;
-     justify-content: flex-start;
-     
-  }
+.blue-column {
+  background-color: white;
+  height: 100px;
+}
 
-  .flex-column {
-    flex-direction: column;
-    justify-content: flex-start;
-    flex-flow: column wrap;
-    
-  }
+.green-column {
+  background-color: white;
+  height: 100px;
+}
 
-  .half-screen-column {
-    width: 50%;
-  }
-
-  span{
-    padding:2px;
-  }
-
-  .example-container {
+.btn {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.example-container {
   width: 400px;
   max-width: 100%;
   margin: 0 25px 25px 0;
@@ -81,4 +81,3 @@
 .example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
-
