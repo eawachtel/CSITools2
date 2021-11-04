@@ -5,6 +5,7 @@ import { ExportToCsv } from 'export-to-csv';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 
 import {inputDisplayNames} from '../../external-data/display-channel-list'
+import {outputNames} from '../../external-data/output-channel-list'
 
 
 @Component({
@@ -15,22 +16,21 @@ import {inputDisplayNames} from '../../external-data/display-channel-list'
 export class DOEFactorMatrixComponent implements OnInit {
 
 
-  todo = [
-    'Get to work',
-    'Pick up groceries',
-    'Go home',
-    'Fall asleep'
-  ];
+  simOutputList = outputNames;
 
   done = [
-    'Get up',
-    'Brush teeth',
-    'Take a shower',
-    'Check e-mail',
-    'Walk dog'
+    ''
   ];
 
-  drop(event: CdkDragDrop<string[]>) {
+  public async emptyList(){
+    if (this.simOutputList.length < 1){this.simOutputList = ['']}
+    if (this.done.length < 1){this.done = ['']}
+  }
+
+  public async drop(event: CdkDragDrop<string[]>) {
+    let emptyCheck = await this.emptyList();
+    
+
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -39,6 +39,18 @@ export class DOEFactorMatrixComponent implements OnInit {
                         event.previousIndex,
                         event.currentIndex);
     }
+
+    if (this.simOutputList.length > 1){
+      const index = this.simOutputList.indexOf('');
+      this.simOutputList.splice(index, 1);}
+    if (this.done.length > 1){
+      const index = this.done.indexOf('');
+      if (index > -1) {
+        this.done.splice(index, 1);
+      }
+    }
+
+    emptyCheck = await this.emptyList();
   }
   
   exportIsDisabled:boolean = true;

@@ -2,7 +2,7 @@
   <div class='row'>
       <div class='column'>
         <div class='blue-column'>
-          <p>DOE Factor Matrix Inputs</p>
+          <h4>DOE Factor Matrix Inputs</h4>
           <div class='flex-row'>
             
               <button class='btn' mat-icon-button color="primary"
@@ -62,7 +62,7 @@
     <div class='column'>
       <!-- <div class='row'> -->
         <!-- <span class="half-screen-column"> -->
-          <p>DOE Responces</p>
+          <h4>DOE Responces</h4>
           <div class='row'>
             <input type="file"
                             id="browser"
@@ -82,22 +82,22 @@
               </button>
             </span>
           </div>
-          
+          &nbsp;
           <div class='row'>
             <span class="example-container">
-                <h2>Output Channel List</h2>
+                <h5>Output Channel List</h5>
                 <div
                   cdkDropList
                   #todoList="cdkDropList"
-                  [cdkDropListData]="todo"
+                  [cdkDropListData]="simOutputList"
                   [cdkDropListConnectedTo]="[doneList]"
                   class="example-list"
                   (cdkDropListDropped)="drop($event)">
-                  <div class="example-box" *ngFor="let item of todo" cdkDrag>{{item}}</div>
+                  <div class="example-box" *ngFor="let item of simOutputList" cdkDrag>{{item}}</div>
                 </div>
             </span>
             <span class="example-container">
-              <h2>DOE Analyze List</h2>
+              <h5>DOE Analyze List</h5>
               <div
               cdkDropList
               #doneList="cdkDropList"
@@ -234,7 +234,7 @@
     </div>
 </div>
 
-&nbsp;
+c
 <div>
   {{testString}}
 </div> -->

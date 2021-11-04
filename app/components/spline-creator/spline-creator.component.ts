@@ -226,11 +226,7 @@ export class SplineCreatorComponent implements OnInit {
       || this.splineCut === null || this.splineCut === undefined)
       { alert ('Issue with undefined point or point(s) defined as 0')
         return};
-    if (this.splineEnd < this.splineCut){
-      alert('Spline end needs to be greater than the spline cut');
-      return;
-    }
-    
+        
     let rideRateOverride:IxyGraph[] = [];
     // Ride Rate Override portion (pittail)
     this.rideRateOverride = [];
@@ -243,23 +239,26 @@ export class SplineCreatorComponent implements OnInit {
     
     let engagedSpline:IxyGraph[] = [];
     // Spring Spline portion (spring)
-    this.pastedSpringDataPersist.forEach((item:IxyGraph) => {
-      if (this.splineCut < item.x && item.x < this.splineEnd){
-        engagedSpline.push(item);
+    for (let i = 0; i < this.pastedSpringDataPersist.length - 1; i++) {
+      if (this.splineCut < this.pastedSpringDataPersist[i].x && this.pastedSpringDataPersist[i].x < this.splineEnd){
+        engagedSpline.push(this.pastedSpringDataPersist[i]);
+        if (this.pastedSpringDataPersist[i + 1].x > this.splineEnd) { break }
       }
-    });
+    }
+    
     this.engagedSpline = engagedSpline;
     this.plotSpringSplineData();
   }
 
   public async trimEndFullData(){
+    
     let cutData:IxyGraph[] = [];
     this.pastedSpringDataMod = [];
-    this.pastedSpringDataPersist.forEach((item) => {
-      if (item.x < this.splineEnd){
-        cutData.push(item)
-      }
-    });
+    for (let i = 0; i < this.pastedSpringDataPersist.length - 1; i++) {
+      cutData.push(this.pastedSpringDataPersist[i]);
+      if (this.pastedSpringDataPersist[i + 1].x > this.splineEnd) { break }
+    }
+    
     return cutData
   }
 
@@ -268,16 +267,26 @@ export class SplineCreatorComponent implements OnInit {
     if (cut === 0){ return };
     this.splineEnd = cut;
     
-    // if (this.springSplineType === "single") {
-      this.onSplineCut('event');
-      this.pastedSpringDataMod = await this.trimEndFullData();
-      this.plotSpringSplineData();
-    // }
+    
+    this.onSplineCut('event');
+    this.pastedSpringDataMod = await this.trimEndFullData();
 
-    // if (this.springSplineType === 'cut'){
-      // this.pastedSpringDataMod = await this.trimEndFullData();
-      // this.onSplineCut('event');
-    // }
+    if (this.engagedSpline.length > 0){
+      let engagedSpline:IxyGraph[] = [];
+      // Spring Spline portion (spring)
+      for (let i = 0; i < this.engagedSpline.length - 1; i++) {
+        if (this.splineCut < this.engagedSpline[i].x && this.engagedSpline[i].x < this.splineEnd){
+          engagedSpline.push(this.engagedSpline[i]);
+          if (this.engagedSpline[i + 1].x > this.splineEnd) { break }
+        }
+      }
+      this.engagedSpline = engagedSpline;
+    }
+    
+    
+
+    this.plotSpringSplineData();
+   
 
   }
 
@@ -303,6 +312,10 @@ export class SplineCreatorComponent implements OnInit {
   }
 
   public async copySpline() {
+    if (this.splineEnd < this.splineCut){
+        alert('Spline end needs to be greater than the spline cut');
+        return;
+    }
     let arrayList:IxyGraph[] = await this.checkAscendingValues(this.engagedSpline);
     let xZero:number = arrayList[0].x;
     let yZero:number = arrayList[0].y;
