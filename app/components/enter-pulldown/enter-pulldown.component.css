@@ -11,10 +11,17 @@
    flex: 1;
 }
 
-.half-row-child {
+.fill-column {
   display: flex; 
-  width: 49%;
-  
+  flex-basis: 0;
+  flex-grow: 1;  
+  flex-direction:column;
+}
+
+.evenly-dist-row {
+  display: flex; 
+  flex-direction: row;
+  align-content: evenly-spaced;
 }
 
 .flex-row-fixed {

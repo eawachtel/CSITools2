@@ -20,37 +20,39 @@
     </div>
 
     <div class='flex-row'>
-        <div>
-            <div style='margin-bottom: 2vh;' *ngIf = "fileTypeSelect === 'multi'">
-                <input type="file"
-                    id="browser2"
-                    style='display:none'
-                    accept=".txt*"
-                    (change)="lfFileChangeListener($event)">
+        <div class='fill-column'>
+            <div class='flex-row'>
+                <div style='margin-bottom: 2vh;' *ngIf = "fileTypeSelect === 'multi'">
+                    <input type="file"
+                        id="browser2"
+                        style='display:none'
+                        accept=".txt*"
+                        (change)="lfFileChangeListener($event)">
+                    
+                        <button mat-raised-button color="primary" 
+                        onclick= "document.getElementById('browser2').click()"
+                            id='browser2'>Select LF Pulldown .txt File
+                        </button>
                 
-                    <button mat-raised-button color="primary" 
-                    onclick= "document.getElementById('browser2').click()"
-                        id='browser2'>Select LF Pulldown .txt File
-                    </button>
-            
+                </div>
+                <div *ngIf='lfFullPersist.length > 0' class='flex-row-fixed'>
+                        <button style='margin-right: 1vw;' mat-raised-button color="primary" 
+                            (click)= "onTopCurveSelect(side ='LF')">Top of Curve
+                        </button>
+                        <button style='margin-left: 1vw; padding-right: 1vw;' mat-raised-button color="primary" 
+                            (click)= "onBottomCurveSelect(side ='LF')">Bottom of Curve
+                        </button>
+                        <div style='padding-left: 1vw;'>
+                            <input style='padding-top: 4px; width: 110px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;
+                            font-size: 13px; text-align: center;'
+                            matInput type="number"
+                            placeholder=" LF Setup Load"
+                            (keyup) = "onOffset($event, side = 'LF');"
+                            (click) = "onOffset($event, side = 'LF');">
+                        </div>
+                </div>
             </div>
-            <div *ngIf='lfFullPersist.length > 0' class='flex-row-fixed'>
-                    <button style='margin-right: 1vw;' mat-raised-button color="primary" 
-                        (click)= "onTopCurveSelect(side ='LF')">Top of Curve
-                    </button>
-                    <button style='margin-left: 1vw; padding-right: 1vw;' mat-raised-button color="primary" 
-                        (click)= "onBottomCurveSelect(side ='LF')">Bottom of Curve
-                    </button>
-                    <div style='padding-left: 1vw;'>
-                        <input style='padding-top: 4px; width: 110px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;
-                        font-size: 13px; text-align: center;'
-                        matInput type="number"
-                        placeholder=" LF Setup Load"
-                        (keyup) = "onOffset($event, side = 'LF');"
-                        (click) = "onOffset($event, side = 'LF');">
-                    </div>
-            </div>
-            <div style='margin-top: 2vh; padding: 10px; border: 2px solid black; border-radius: 10px; width:650px;'>
+            <div style='margin-top: 2vh; padding: 10px; border: 2px solid black; border-radius: 10px; width:95%;'>
                 <plotly-plot [data]="lfGraph.data" [layout]="lfGraph.layout"
                     [useResizeHandler]="true" [style]="{position: 'relative', width: '100%', height: '100%'}">
                 </plotly-plot>
@@ -64,7 +66,8 @@
             </div>
             
         </div>
-            <div style='padding-left: 5vw;'>
+        <div class='fill-column'>
+            <div class='flex-row'>
                 <div style='margin-bottom: 2vh;' *ngIf = "fileTypeSelect === 'multi'">
                     <input type="file"
                         id="browser3"
@@ -76,7 +79,6 @@
                         onclick= "document.getElementById('browser3').click()"
                             id='browser3'>Select RF Pulldown .txt File
                         </button>
-                
                 </div>
                 <div *ngIf='rfFullPersist.length > 0' class='flex-row-fixed'>
                     <button style='margin-right: 1vw;' mat-raised-button color="primary" 
@@ -94,19 +96,20 @@
                         (click) = "onOffset($event, side = 'RF');">
                     </div>
                 </div>
-                <div style='margin-top: 2vh; padding: 10px; border: 2px solid black; border-radius: 10px; width:650px;'>
-                    <plotly-plot [data]="rfGraph.data" [layout]="rfGraph.layout"
-                        [useResizeHandler]="true" [style]="{position: 'relative', width: '100%', height: '100%', padding:'0'}">
-                    </plotly-plot>
-                </div>
-                <div *ngIf='lfFullPersist.length > 0' style='margin-top: 1vh; padding-left: 1vw;'>
-                    <label>Start Trim Value:</label>
-                    <input style='margin-left: 1vw; text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
-                    matInput type="number"
-                    [(ngModel)] = "rfTrimStart"
-                    (keyup) = "onRFTrimStart($event);">
-                </div>
             </div>
+            <div style='margin-top: 2vh; padding: 10px; border: 2px solid black; border-radius: 10px; width:95%;'>
+                <plotly-plot [data]="rfGraph.data" [layout]="rfGraph.layout"
+                    [useResizeHandler]="true" [style]="{position: 'relative', width: '100%', height: '100%', padding:'0'}">
+                </plotly-plot>
+            </div>
+            <div *ngIf='lfFullPersist.length > 0' style='margin-top: 1vh; padding-left: 1vw;'>
+                <label>Start Trim Value:</label>
+                <input style='margin-left: 1vw; text-align: center; padding-top: 4px; width: 100px; height: 30px; border:2px solid #3f51b5; border-radius: 5px;' 
+                matInput type="number"
+                [(ngModel)] = "rfTrimStart"
+                (keyup) = "onRFTrimStart($event);">
+            </div>
+        </div>
     </div>
 
     <div *ngIf='lfFullPersist.length > 0 && rfFullPersist.length > 0' style='margin-top: 1vh;'>
