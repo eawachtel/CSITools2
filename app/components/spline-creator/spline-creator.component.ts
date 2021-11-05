@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, Input } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
 import * as regression from 'regression';
 import { max } from 'lodash';
@@ -25,6 +25,7 @@ interface IplotlySplineGraph {
   }
 }
 
+
 @Component({
   selector: 'spline-creator',
   templateUrl: './spline-creator.component.html',
@@ -32,18 +33,22 @@ interface IplotlySplineGraph {
 })
 export class SplineCreatorComponent implements OnInit {
 
-  splineStart:number = 0;
+  @Input() selectedTabIndex:number | undefined;
   
+  ngOnChanges(): void {
+    
+    if (this.selectedTabIndex === 1) { 
+      setTimeout(() => {
+        this.clearSpringSplineData();
+      }, 200);
+    }
+  }
+  splineStart:number = 0;
   springSplineType:string = 'single';
-  // springCutStart:number = 0;
-  // springCutEnd:number = 0;
-  // fullSpringCopy:IxyGraph[] = [];
-  // pigtailSpringCopy:IxyGraph[] = [];
-  // engagedSpringCopy:IxyGraph[] = [];
   pasteBoxString:string = 'Click box and Paste Ride Rate Data Here'
   displayedColumns: string[] = [];
   dataSource: any[] = [];
-
+  
   springGraph = {
     data: [
       {
@@ -63,7 +68,7 @@ export class SplineCreatorComponent implements OnInit {
       }
     ],
     layout: 
-      {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"}, 
+      {autosize: false, showlegend: true, legend: {x: .4, y: -.2, "orientation": "h"}, 
       title: 'Spring Travel vs Spring Load',
       xaxis: {title: 'Spring Travel (in)', zeroline: false, showline: true, range: [-1, 1]},
       yaxis: {title: 'Spring Load (lbf)', zeroline: false, showline: true},
@@ -85,8 +90,9 @@ export class SplineCreatorComponent implements OnInit {
   pastedSpringDataMod:IxyGraph[] = [];
 
   constructor(private clipboard: Clipboard) { }
-
+    
   ngOnInit(): void {
+
   }
 
   public async findXMaxValue(data:IxyGraph[]) {
@@ -360,38 +366,39 @@ export class SplineCreatorComponent implements OnInit {
         fullModY.push(item.y);
       });
 
-      dataList = [ {
-        x: springXPersist,
-        y: springYPersist,
-        type: 'scattergl',
-        name: 'Spring Spline Data',
-        mode: 'lines+markers',
-        marker: {
-          color: 'blue',
-          size: 3
+      dataList = [ 
+        {
+          x: springXPersist,
+          y: springYPersist,
+          type: 'scattergl',
+          name: 'Spring Spline Data',
+          mode: 'lines+markers',
+          marker: {
+            color: 'blue',
+            size: 5
+          },
+          line: {
+            dash: 'solid',
+            color: 'blue',
+            width: 4
+          }
         },
-        line: {
-          dash: 'solid',
-          color: 'blue',
-          width: 1
+        {
+          x: fullModX,
+          y: fullModY,
+          type: 'scattergl',
+          name: 'Selected Spring Data',
+          mode: 'lines+markers',
+          marker: {
+            color: 'red',
+            size: 3
+          },
+          line: {
+            dash: 'solid',
+            color: 'red',
+            width: 2
+          }
         }
-      },
-      {
-        x: fullModX,
-        y: fullModY,
-        type: 'scattergl',
-        name: 'Selected Spring Data',
-        mode: 'lines+markers',
-        marker: {
-          color: 'red',
-          size: 3
-        },
-        line: {
-          dash: 'dash',
-          color: 'red',
-          width: 3
-        }
-      }
       ]
     }
 
@@ -419,12 +426,12 @@ export class SplineCreatorComponent implements OnInit {
         mode: 'lines+markers',
         marker: {
           color: 'blue',
-          size: 3
+          size: 5
         },
         line: {
           dash: 'solid',
           color: 'blue',
-          width: 1
+          width: 4
         }
       },
       {
@@ -438,9 +445,9 @@ export class SplineCreatorComponent implements OnInit {
           size: 3
         },
         line: {
-          dash: 'dash',
+          dash: 'solid',
           color: 'red',
-          width: 3
+          width: 2
         }
       },
       {
@@ -454,9 +461,9 @@ export class SplineCreatorComponent implements OnInit {
           size: 3
         },
         line: {
-          dash: 'dash',
+          dash: 'solid',
           color: 'black',
-          width: 3
+          width: 2
         }
       }
       ]
@@ -466,7 +473,7 @@ export class SplineCreatorComponent implements OnInit {
     this.springGraph = this.springGraph = {
       data: dataList,
       layout: 
-        {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"},
+        {autosize: true, showlegend: true, legend: {x: .4, y: -.2, "orientation": "h"},
         title: 'Spring Travel vs Spring Load',
         xaxis: {title: 'Spring Travel (in)', zeroline: false, showline: true, range: [springXMin, springXMax]},
         yaxis: {title: 'Spring Load (lbf)', zeroline: false, showline: true},

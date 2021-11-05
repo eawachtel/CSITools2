@@ -1,6 +1,5 @@
 .flex-container{
     display: flex;
-    
     flex-flow: column wrap;
   }
 
@@ -9,6 +8,13 @@
    flex-wrap: wrap;
    justify-content: flex-start;
    padding-top: 1vh;
+   flex: 1;
+}
+
+.half-row-child {
+  display: flex; 
+  width: 49%;
+  
 }
 
 .flex-row-fixed {
