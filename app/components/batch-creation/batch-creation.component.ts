@@ -9,9 +9,9 @@ import { cloneDeep } from 'lodash';
 
 import {partsDefList} from '../../external-data/part-definition-list'
 
-const batchMatrix2 = [
-  {attribute: 'test', baselineValue: null, values: '150, 200'}
-]
+// const batchMatrix2 = [
+//   {attribute: 'test', baselineValue: null, values: '150, 200'}
+// ]
 
 
 
@@ -23,10 +23,11 @@ const batchMatrix2 = [
 
 
 export class BatchCreationComponent implements OnInit {
-  animal: string | undefined;
-  name: string | undefined;
+  // animal: string | undefined;
+  // name: string | undefined;
   batchMatrix: any[] = [];
   batchDict: any = {};
+  batchType:string = 'desktop';
   designMatrix: any[] = [];
   excludedKeyStrings: string[] = ['', 'Response 1']
   excludedValueStrings: string[] = ['Run', 'R1']
@@ -37,7 +38,7 @@ export class BatchCreationComponent implements OnInit {
   functionInputFactors: any[] = ['JackscrewAdjustLR', 'JackscrewAdjustRR'];
   dialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA']
   displayedColumns: string[] = ['attribute', 'values'];
-  dataSource = batchMatrix2
+  // dataSource = batchMatrix2
 
   constructor(public dialog: MatDialog, private clipboard: Clipboard) { 
     
@@ -229,6 +230,7 @@ export class BatchCreationComponent implements OnInit {
         header: true,
         skipEmptyLines: true,
         complete: async (result) => {
+          
           await this.processInputs(result.data); // get input factors in a list and add to batchmatrix as row
           await this.processValues(result.data); // get values and enter into array in batchmatrix
           await this.processFunctions(); // run functions on channels requiring addition channel defs ie. FARB ARMS, Jackscrew ect
@@ -273,6 +275,14 @@ export class BatchCreationComponent implements OnInit {
       string = string + subString;
     });
     this.clipboard.copy(string);
+  }
+
+  public radialClick(){
+
+    setTimeout(() => {
+      
+    }, 100);
+
   }
 }
 

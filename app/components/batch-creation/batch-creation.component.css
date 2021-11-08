@@ -15,9 +15,9 @@
     flex-flow: column wrap;
   }
 
-  span{
-    padding:4px;
-  }
+ .btn {
+   margin: 3px;
+ }
 
   .batch-table {
     width: 100%;

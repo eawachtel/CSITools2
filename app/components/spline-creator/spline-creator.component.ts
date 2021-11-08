@@ -120,6 +120,7 @@ export class SplineCreatorComponent implements OnInit {
     const result = regression.polynomial(fitData, { order: 2 });
     fullSpline.push(data[0]);
     let count:number = .05;
+    
     for (let i = 0 ; i < data.length - 1 ; i++) {
       if (count < secondPointX) {
         let predictObj:number[] = result.predict(count);
@@ -127,6 +128,8 @@ export class SplineCreatorComponent implements OnInit {
         count = count + .05;
       }
     }
+
+    fullSpline = fullSpline.slice(0, -1);
 
     data.forEach((item) => {
       if (item.x > secondPointX) {
@@ -178,10 +181,7 @@ export class SplineCreatorComponent implements OnInit {
   public radialClick(){
 
     setTimeout(() => {
-    // this.springSplineType;
-    // this.rideRateOverride = [];
-    // this.engagedSpline = [];
-    this.plotSpringSplineData();
+      this.plotSpringSplineData();
     }, 100);
 
   }
@@ -372,15 +372,15 @@ export class SplineCreatorComponent implements OnInit {
           y: springYPersist,
           type: 'scattergl',
           name: 'Spring Spline Data',
-          mode: 'lines+markers',
+          mode: 'markers',
           marker: {
             color: 'blue',
-            size: 5
+            size: 8
           },
           line: {
             dash: 'solid',
             color: 'blue',
-            width: 4
+            width: 0
           }
         },
         {
@@ -388,13 +388,13 @@ export class SplineCreatorComponent implements OnInit {
           y: fullModY,
           type: 'scattergl',
           name: 'Selected Spring Data',
-          mode: 'lines+markers',
+          mode: 'lines',
           marker: {
             color: 'red',
-            size: 3
+            size: 0
           },
           line: {
-            dash: 'solid',
+            dash: 'dash',
             color: 'red',
             width: 2
           }
@@ -423,15 +423,15 @@ export class SplineCreatorComponent implements OnInit {
         y: springYPersist,
         type: 'scattergl',
         name: 'Spring Spline Data',
-        mode: 'lines+markers',
+        mode: 'markers',
         marker: {
           color: 'blue',
-          size: 5
+          size: 8
         },
         line: {
           dash: 'solid',
           color: 'blue',
-          width: 4
+          width: 0
         }
       },
       {
@@ -442,10 +442,10 @@ export class SplineCreatorComponent implements OnInit {
         mode: 'lines',
         marker: {
           color: 'red',
-          size: 3
+          size: 0
         },
         line: {
-          dash: 'solid',
+          dash: 'dash',
           color: 'red',
           width: 2
         }
@@ -458,10 +458,10 @@ export class SplineCreatorComponent implements OnInit {
         mode: 'lines',
         marker: {
           color: 'black',
-          size: 3
+          size: 0
         },
         line: {
-          dash: 'solid',
+          dash: 'dash',
           color: 'black',
           width: 2
         }

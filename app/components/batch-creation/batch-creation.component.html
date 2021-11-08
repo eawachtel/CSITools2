@@ -1,39 +1,43 @@
 <div class="flex-column">
-    <p>
-        <span>Create PM Batch Input</span>
-    </p>
+  <div class='flex-row' style='margin-top:1vh;'>
+    <mat-radio-group  [(ngModel)]="batchType">
+      <mat-radio-button 
+          style='padding: 2px'
+          value="desktop"
+          (click) = 'radialClick();'>Desktop
+      </mat-radio-button>
+      <mat-radio-button 
+          style='padding: 2px'
+          value="cloud"
+          (click) = 'radialClick();'>Cloud
+      </mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <div class='flex-row'>
+    <input type="file"
+                    id="browser"
+                    style='display:none'
+                    accept=".csv"
+                    (change)="fileChangeListener($event)">
     
-        
-    <div class='flex-row'>
-      <input type="file"
-                      id="browser"
-                      style='display:none'
-                      accept=".csv"
-                      (change)="fileChangeListener($event)">
-      <span>
-          <button mat-raised-button color="primary" 
-            onclick= "document.getElementById('browser').click()"
-              id='browser'>Import DE Design Matrix csv
-          </button>
-      </span>
-      
-  
-    <div class='flex-row'>
-      <span>
-          <button mat-raised-button color="primary"
-            [disabled]="exportIsDisabled"
-            (click) = "exportBatchMatrix();">Export Batch Matrix
-          </button>
-      </span>
-    </div>
-    <span>
-      <button mat-raised-button color="primary"
+    <button class='btn' mat-raised-button color="primary" 
+      onclick= "document.getElementById('browser').click()"
+        id='browser'>Import DE Design Matrix csv
+    </button>
+    <button class='btn' mat-raised-button color="primary"
       [disabled]="exportIsDisabled"
-      (click)="copyToClipBoard()">Copy Table to Clipboard</button>
-    </span>
+      (click) = "exportBatchMatrix();">Export Batch Matrix
+    </button>
+    <button  *ngIf='batchType === "desktop"' class='btn'mat-raised-button color="primary"
+      [disabled]="exportIsDisabled"
+      (click)="copyToClipBoard()">Copy Table to Clipboard
+    </button>
   </div>
 </div>
+
 &nbsp;
+
 <div>
   <table mat-table [dataSource]="batchMatrix" class="mat-elevation-z8 batch-table">
     <!-- Position Column -->

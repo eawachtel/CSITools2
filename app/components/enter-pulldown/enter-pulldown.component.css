@@ -8,7 +8,7 @@
    flex-wrap: wrap;
    justify-content: flex-start;
    padding-top: 1vh;
-   flex: 1;
+   
 }
 
 .fill-column {
@@ -16,6 +16,7 @@
   flex-basis: 0;
   flex-grow: 1;  
   flex-direction:column;
+  margin: 5px;
 }
 
 .evenly-dist-row {
