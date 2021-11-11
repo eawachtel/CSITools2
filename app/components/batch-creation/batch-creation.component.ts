@@ -5,14 +5,10 @@ import { SubmitDialogComponent } from '../submit-dialog/submit-dialog.component'
 import * as _ from 'lodash';
 import * as Papa from 'papaparse';
 import { ExportToCsv } from 'export-to-csv';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, initial, update } from 'lodash';
 
 import {partsDefList} from '../../external-data/part-definition-list'
-
-// const batchMatrix2 = [
-//   {attribute: 'test', baselineValue: null, values: '150, 200'}
-// ]
-
+import { inputDisplayNames } from '../../external-data/batch-parameter-mapping'
 
 
 @Component({
@@ -23,9 +19,12 @@ import {partsDefList} from '../../external-data/part-definition-list'
 
 
 export class BatchCreationComponent implements OnInit {
-  // animal: string | undefined;
-  // name: string | undefined;
+  
+  cloudBatchIndexDict:any = {};
+  cloudBatchFactorList:string[] = [];
+  cloudBatchIndexList:number[] = [];
   batchMatrix: any[] = [];
+  batchMatrixCloud: any[] = [];
   batchDict: any = {};
   batchType:string = 'desktop';
   designMatrix: any[] = [];
@@ -35,10 +34,11 @@ export class BatchCreationComponent implements OnInit {
   inputs: string[] = [];
   inputFactorList: string[] = [];
   inputDict: any = {};
+
   functionInputFactors: any[] = ['JackscrewAdjustLR', 'JackscrewAdjustRR'];
   dialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA']
   displayedColumns: string[] = ['attribute', 'values'];
-  // dataSource = batchMatrix2
+  
 
   constructor(public dialog: MatDialog, private clipboard: Clipboard) { 
     
@@ -47,11 +47,57 @@ export class BatchCreationComponent implements OnInit {
   ngOnInit(): void {
   }
 
- 
-  public async processInputs(data:any[]) {
+  public async resetCloudVariables(){
+    this.cloudBatchIndexDict = {};
+    this.cloudBatchFactorList = [];
+    this.cloudBatchIndexList = [];
+    this.batchMatrixCloud = [];
+  }
+  
+  public async processInputsCloud(data:any[]){
+    await this.resetCloudVariables();
+    
+    // create headers and displayed columns from 360 output
+    let headers = data[0];
+    let headersKeys = Object.keys(headers);
+    this.displayedColumns = [];
+    headersKeys.forEach((item, index:number) => {
+      let blank = ' ';
+      if (item.indexOf(blank) !== -1){
+        let title = item.substr(0, item.indexOf(blank));
+        if (title === 'Factor'){
+          this.displayedColumns.push(data[0][item].substring(2)) // Add displayed columns  {0: 'SpringLR_Rate'}  index: displayName
+          console.log(this.displayedColumns)
+          this.cloudBatchIndexDict[item] = data[0][item].substring(2); // {Factor 1: 'SpringLR_Rate'} DE Name: displayName
+          console.log(this.cloudBatchIndexDict)
+          this.cloudBatchFactorList.push(item);
+          console.log(this.cloudBatchFactorList) // ['Factor 1']
+          this.cloudBatchIndexList.push(index);
+          console.log(this.cloudBatchIndexList) // [index]
+        }
+      }
+    });
+        
+    //change keys of data to display name and only pick factor columns
+    let indexedData: any[] = [];
+    for (let i = 2; i <= data.length - 1; i++){
+      let item = data[i];
+      let obj:any = {};
+      this.cloudBatchFactorList.forEach((element:any) => {
+        let key = this.cloudBatchIndexDict[element];
+        let value = item[element]
+        obj[key] = value;
+      });
+      indexedData.push(obj);
+    };
+    
+    this.batchMatrixCloud = indexedData;
+  } 
+
+ public async processInputs(data:any[]) {
     let factorObj = data[0];
     this.inputFactorList = [];
-    //make dictionar of Factor Labels ie {Factor1:'LRSpring'}
+    //make dictionary of Factor Labels ie {Factor1:'LRSpring'}
     Object.keys(factorObj).forEach((val:any) => {
       if (!this.excludedKeyStrings.includes(val)) {
         this.inputDict[val] = factorObj[val].substring(2);
@@ -210,6 +256,32 @@ export class BatchCreationComponent implements OnInit {
       })
   }
 
+  public async processFunctionsCloud() {
+    let updatedData:any[] = [];
+    Object.values(this.cloudBatchIndexDict).forEach((item:any) => {
+      if (this.functionInputFactors.includes(item)) {
+        switch(item) {
+          case 'JackscrewAdjustLR':
+            this.batchMatrixCloud.forEach((row:any) => {
+              let obj:any = row;
+              obj[item] = ((obj[item] / 12) * -1).toFixed(3);
+              updatedData.push(obj);
+            });
+            this.batchMatrixCloud = updatedData;
+            break;
+          case 'JackscrewAdjustRR':
+            this.batchMatrixCloud.forEach((row:any) => {
+              let obj:any = row;
+              obj[item] = ((obj[item] / 12) * -1).toFixed(3);
+              updatedData.push(obj);
+            });
+            this.batchMatrixCloud = updatedData;
+            break;
+        }
+      }
+    })
+}
+
   public jackscrewScale(values: any[]) {
     let newValues: any[] = []
     values.forEach((number) => {
@@ -230,41 +302,90 @@ export class BatchCreationComponent implements OnInit {
         header: true,
         skipEmptyLines: true,
         complete: async (result) => {
-          
-          await this.processInputs(result.data); // get input factors in a list and add to batchmatrix as row
-          await this.processValues(result.data); // get values and enter into array in batchmatrix
-          await this.processFunctions(); // run functions on channels requiring addition channel defs ie. FARB ARMS, Jackscrew ect
-          let test = this.batchDict;
-          this.dialogValues(); // Dialog to get needed parts definitions
+          if (this.batchType === 'desktop'){
+            await this.processInputs(result.data); // get input factors in a list and add to batchmatrix as row
+            await this.processValues(result.data); // get values and enter into array in batchmatrix
+            await this.processFunctions(); // run functions on channels requiring addition channel defs ie. FARB ARMS, Jackscrew ect
+            this.dialogValues(); // Dialog to get needed parts definitions
+          }
+          if (this.batchType === 'cloud'){
+            let data:any[]
+            await this.processInputsCloud(result.data); // put data in correct columns/rows with display names
+            await this.processFunctionsCloud(); // run functions on channels requiring addition channel defs ie. FARB ARMS, Jackscrew ect
+          }
         }
           });
-    
-      
-      
     } else {
       alert('Problem loading CSV file');
     }
   }
 
   exportBatchMatrix(){
-    const options = { 
-      fieldSeparator: ',',
-      filename: 'PM Batch Matrix',
-      quoteStrings: '"',
-      decimalSeparator: '.',
-      showLabels: false, 
-      showTitle: false,
-      title: 'My Awesome CSV',
-      useTextFile: false,
-      useBom: true,
-      useKeysAsHeaders: true,
-      // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
-    };
-   
-  const csvExporter = new ExportToCsv(options);
-   
-  csvExporter.generateCsv(this.batchMatrix);
+    if (this.batchType === 'desktop'){
+      const options = { 
+        fieldSeparator: ',',
+        filename: 'PM Batch Matrix',
+        quoteStrings: '"',
+        decimalSeparator: '.',
+        showLabels: false, 
+        showTitle: false,
+        title: 'My Awesome CSV',
+        useTextFile: false,
+        useBom: true,
+        useKeysAsHeaders: true,
+        // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
+      };
+      const csvExporter = new ExportToCsv(options);
+      csvExporter.generateCsv(this.batchMatrix);
+    }
 
+    if (this.batchType === 'cloud'){
+      let headers = Object.keys(this.batchMatrixCloud[0]);
+      let headerList:string[] = [];
+
+      for (let i = 0; i < headers.length - 1; i++){
+        let listItem = '';
+        if (i === 1) {listItem = 'Vehicle'}
+        headerList.push(listItem);
+      }
+      
+      const options = { 
+        fieldSeparator: ',',
+        filename: 'PM Cloud Batch Matrix',
+        quoteStrings: '"',
+        decimalSeparator: '.',
+        showLabels: true, 
+        showTitle: false,
+        title: 'My Awesome CSV',
+        useTextFile: false,
+        useBom: true,
+        useKeysAsHeaders: false,
+        headers: headerList
+      };
+
+      let fakeHeaderRow:any = {'Run #': 'Run #'};
+      headers.forEach((item) => {
+        let key = item;
+        let value = inputDisplayNames[item].WorkflowName;;
+        fakeHeaderRow[key] = value;
+      })
+      let updatedData:any[] = [];
+      updatedData.push(fakeHeaderRow);
+      let count:number = 1;
+      for (let i = 0; i <= this.batchMatrixCloud.length -1; i++){
+        let newObj:any = {'Run #': count};
+        let objList = Object.keys(this.batchMatrixCloud[i]);
+        objList.forEach((key) => {
+          let newKey = inputDisplayNames[key].WorkflowName;
+          let convertedVal = this.batchMatrixCloud[i][key] * (1 / inputDisplayNames[key].Scale);
+          newObj[key] = convertedVal;
+        });
+        updatedData.push(newObj);
+        count = count + 1;
+      }
+      const csvExporter = new ExportToCsv(options);
+      csvExporter.generateCsv(updatedData);
+    }
   }
 
   copyToClipBoard() {
@@ -280,7 +401,12 @@ export class BatchCreationComponent implements OnInit {
   public radialClick(){
 
     setTimeout(() => {
-      
+      if (this.batchType === 'desktop'){
+        this.displayedColumns= ['attribute', 'values'];
+      } else {
+        this.displayedColumns= [];
+      }
+      this.resetCloudVariables();
     }, 100);
 
   }

@@ -25,8 +25,7 @@
       onclick= "document.getElementById('browser').click()"
         id='browser'>Import DE Design Matrix csv
     </button>
-    <button class='btn' mat-raised-button color="primary"
-      [disabled]="exportIsDisabled"
+    <button *ngIf='batchMatrix.length > 0 || batchMatrixCloud.length > 0' class='btn' mat-raised-button color="primary"
       (click) = "exportBatchMatrix();">Export Batch Matrix
     </button>
     <button  *ngIf='batchType === "desktop"' class='btn'mat-raised-button color="primary"
@@ -38,7 +37,7 @@
 
 &nbsp;
 
-<div>
+<div *ngIf='batchType === "desktop"'>
   <table mat-table [dataSource]="batchMatrix" class="mat-elevation-z8 batch-table">
     <!-- Position Column -->
     <ng-container matColumnDef="attribute">
@@ -51,7 +50,20 @@
       <th mat-header-cell *matHeaderCellDef> Values </th>
       <td mat-cell *matCellDef="let element"> {{element.values}} </td>
     </ng-container>
+    
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>  
+  </table>
+</div>
+
+<div *ngIf='batchType === "cloud"'>
+  <table mat-table [dataSource]="batchMatrixCloud" class="mat-elevation-z8 batch-table">
+    <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns">
+      <th mat-header-cell *matHeaderCellDef> {{column}} </th>
+      <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
+    </ng-container>
+  
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 </div>

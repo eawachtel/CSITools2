@@ -35,8 +35,8 @@ export class EnterPulldownComponent implements OnInit {
   lfLoadChannelName:string = '';
   rfShockChannelName:string = '';
   rfLoadChannelName:string = '';
-  lfTrimStart:number = .2;
-  rfTrimStart:number = .2;
+  lfTrimStart:number = 0;
+  rfTrimStart:number = 0;
   fileTypeSelect: string = 'single';
   pulldownDataPersist: {'LF Shock Travel': number, 'LF Wheel Load': number, 'RF Shock Travel': number, 'RF Wheel Load': number}[]= [];
   side:string|undefined = undefined;

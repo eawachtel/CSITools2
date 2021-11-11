@@ -81,7 +81,8 @@ export class SplineCreatorComponent implements OnInit {
       },
     },
   }
-  list:any[] = []
+  list:any[] = [];
+  secondPointFit:number | undefined;
   splineCut:number = 0;
   splineEnd:number = 0;
   rideRateOverride:IxyGraph[] = [];
@@ -109,6 +110,7 @@ export class SplineCreatorComponent implements OnInit {
     let fullSpline:IxyGraph[] = [];
     let fitData:number[][] = [];
     let secondPointX:number = data[1].x;
+    this.secondPointFit = secondPointX;
     data.forEach((item) => {
       if (item.x < secondPointX + 1){
         if (item.y !== undefined && !isNaN(item.y)) {
@@ -348,8 +350,11 @@ export class SplineCreatorComponent implements OnInit {
     let springYPersist:number[] = [];
     this.pastedSpringDataPersist.forEach((item:IxyGraph) => {
       if (item.x !== undefined || item.y !== undefined) {
-        springXPersist.push(item.x);
-        springYPersist.push(item.y);
+        if (!this.secondPointFit){return}
+        if (item.x > this.secondPointFit || item.x === 0){
+          springXPersist.push(item.x);
+          springYPersist.push(item.y);
+        }
       }
     });
     springXMin = Math.min(...springXPersist) - .1;
