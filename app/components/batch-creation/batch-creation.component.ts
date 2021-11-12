@@ -6,10 +6,9 @@ import * as _ from 'lodash';
 import * as Papa from 'papaparse';
 import { ExportToCsv } from 'export-to-csv';
 import { cloneDeep, initial, update } from 'lodash';
-
 import {partsDefList} from '../../external-data/part-definition-list'
 import { inputDisplayNames } from '../../external-data/batch-parameter-mapping'
-
+import {ExcelService} from '../../excel.service';
 
 @Component({
   selector: 'batch-creation',
@@ -40,7 +39,7 @@ export class BatchCreationComponent implements OnInit {
   displayedColumns: string[] = ['attribute', 'values'];
   
 
-  constructor(public dialog: MatDialog, private clipboard: Clipboard) { 
+  constructor(public dialog: MatDialog, private clipboard: Clipboard, private excelService:ExcelService) { 
     
   }
 
@@ -340,36 +339,26 @@ export class BatchCreationComponent implements OnInit {
     }
 
     if (this.batchType === 'cloud'){
-      let headers = Object.keys(this.batchMatrixCloud[0]);
-      let headerList:string[] = [];
-
-      for (let i = 0; i < headers.length - 1; i++){
-        let listItem = '';
-        if (i === 1) {listItem = 'Vehicle'}
-        headerList.push(listItem);
-      }
+      let updatedData:any[] = [];
       
-      const options = { 
-        fieldSeparator: ',',
-        filename: 'PM Cloud Batch Matrix',
-        quoteStrings: '"',
-        decimalSeparator: '.',
-        showLabels: true, 
-        showTitle: false,
-        title: 'My Awesome CSV',
-        useTextFile: false,
-        useBom: true,
-        useKeysAsHeaders: false,
-        headers: headerList
-      };
+      let headers = Object.keys(this.batchMatrixCloud[0]);
+      let headerObj:any = {'Run #': ' '}
+      
+      for (let i = 0; i < headers.length - 1; i++){
+        let key = headers[i]
+        let listItem = '';
+        if (i === 0) {listItem = 'Vehicle'}
+        headerObj[key] = listItem;
+      }
 
+      updatedData.push(headerObj);
       let fakeHeaderRow:any = {'Run #': 'Run #'};
       headers.forEach((item) => {
         let key = item;
         let value = inputDisplayNames[item].WorkflowName;;
         fakeHeaderRow[key] = value;
       })
-      let updatedData:any[] = [];
+      
       updatedData.push(fakeHeaderRow);
       let count:number = 1;
       for (let i = 0; i <= this.batchMatrixCloud.length -1; i++){
@@ -383,9 +372,12 @@ export class BatchCreationComponent implements OnInit {
         updatedData.push(newObj);
         count = count + 1;
       }
-      const csvExporter = new ExportToCsv(options);
-      csvExporter.generateCsv(updatedData);
+      this.exportAsXLSX(updatedData);
     }
+  }
+
+  public exportAsXLSX(data:any[],):void {
+    this.excelService.exportAsExcelFile(data, 'cloudBatchExport');
   }
 
   copyToClipBoard() {
