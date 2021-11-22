@@ -986,40 +986,41 @@ export class EnterPulldownComponent implements OnInit {
         altColor = 'red'
         altName = 'Selected Data'
       }
-      dataList = [{
-        x: rfXPersist,
-        y: rfYPersist,
-        type: 'scattergl',
-        name: 'Pulldown Data',
-        mode: 'markers',
-        marker: {
-          color: 'blue',
-          size: 3
+      dataList = [
+        {
+          x: rfXPersist,
+          y: rfYPersist,
+          type: 'scattergl',
+          name: 'Pulldown Data',
+          mode: 'markers',
+          marker: {
+            color: 'blue',
+            size: 3
+          },
+          line: {
+            color: 'blue',
+            width: 2
+          }
         },
-        line: {
-          color: 'blue',
-          width: 2
+        {
+          x: rfx,
+          y: rfy,
+          type: 'scattergl',
+          name: altName,
+          mode: 'lines+markers',
+          marker: {
+            color: altColor,
+            size: 3
+          },
+          line: {
+            color: altColor,
+            width: 3
+          }
         }
-      },
-      {
-        x: rfx,
-        y: rfy,
-        type: 'scattergl',
-        name: altName,
-        mode: 'lines+markers',
-        marker: {
-          color: altColor,
-          size: 3
-        },
-        line: {
-          color: altColor,
-          width: 3
-        }
-      }
-    ]
+      ]
     }
       
-    this.rfGraph = this.rfGraph = {
+    this.rfGraph = {
       data: dataList,
       layout: 
         {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"},

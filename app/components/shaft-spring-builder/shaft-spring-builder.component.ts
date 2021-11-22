@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Clipboard } from '@angular/cdk/clipboard';
 import * as Papa from 'papaparse';
 
 @Component({
@@ -8,7 +9,39 @@ import * as Papa from 'papaparse';
 })
 export class ShaftSpringBuilderComponent implements OnInit {
   displayedData:{x: number, y: number}[] = [];
-  constructor() { }
+  graph = {
+    data: [
+      {
+        x: [0],
+        y: [0],
+        type: 'scattergl',
+        name: '',
+        mode: 'lines+markers',
+        marker: {
+          color: 'blue',
+          size: 2
+        },
+        line: {
+          color: 'blue',
+          width: 2
+        }
+      }
+    ],
+    layout: 
+      {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"}, 
+      title: 'Travel vs Load',
+      xaxis: {title: 'Travel (in)', automargin: true, zeroline: false, showline: true},
+      yaxis: {title: 'Load (lbf)', zeroline: false, showline: true},
+      margin: {
+        l: 70,
+        r: 50,
+        b: 50,
+        t: 50,
+        pad: 0
+      },
+    },
+  }
+  constructor(private clipboard: Clipboard) { }
 
   ngOnInit(): void {
   }
@@ -53,5 +86,49 @@ export class ShaftSpringBuilderComponent implements OnInit {
       x.push(item.x);
       y.push(item.y);
     });
+
+    let dataList = [
+      {
+        x: x,
+        y: y,
+        type: 'scattergl',
+        name: 'Pulldown Data',
+        mode: 'markers',
+        marker: {
+          color: 'blue',
+          size: 3
+        },
+        line: {
+          color: 'blue',
+          width: 2
+        }
+      }
+    ]
+    this.graph = {
+      data: dataList,
+      layout: 
+        {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"},
+        title: 'Displacement vs Load',
+        xaxis: {title: 'Travel (in)', automargin: true, zeroline: false, showline: true},
+        yaxis: {title: 'Load (lbf)', zeroline: false, showline: true},
+        margin: {
+          l: 70,
+          r: 50,
+          b: 50,
+          t: 50,
+          pad: 0
+        }
+      }
+    };
+  }
+
+  public copySplineDataToClip(){
+    let string = '';
+    this.displayedData.forEach((item) => {
+      let subString = item['x'].toString() + '\t' + item['y'].toString() + '\t' +
+      item['y'].toString() + '\r';
+      string = string + subString;
+    });
+    this.clipboard.copy(string);
   }
 }
