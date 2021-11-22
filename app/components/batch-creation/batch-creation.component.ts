@@ -66,13 +66,9 @@ export class BatchCreationComponent implements OnInit {
         let title = item.substr(0, item.indexOf(blank));
         if (title === 'Factor'){
           this.displayedColumns.push(data[0][item].substring(2)) // Add displayed columns  {0: 'SpringLR_Rate'}  index: displayName
-          console.log(this.displayedColumns)
           this.cloudBatchIndexDict[item] = data[0][item].substring(2); // {Factor 1: 'SpringLR_Rate'} DE Name: displayName
-          console.log(this.cloudBatchIndexDict)
           this.cloudBatchFactorList.push(item);
-          console.log(this.cloudBatchFactorList) // ['Factor 1']
           this.cloudBatchIndexList.push(index);
-          console.log(this.cloudBatchIndexList) // [index]
         }
       }
     });
@@ -372,13 +368,13 @@ export class BatchCreationComponent implements OnInit {
         updatedData.push(newObj);
         count = count + 1;
       }
-      this.exportAsXLSX(updatedData);
+      this.excelService.exportAsExcelFile(updatedData, 'cloudBatchExport');
     }
   }
 
-  public exportAsXLSX(data:any[],):void {
-    this.excelService.exportAsExcelFile(data, 'cloudBatchExport');
-  }
+  // public exportAsXLSX(data:any[],):void {
+  //   this.excelService.exportAsExcelFile(data, 'cloudBatchExport');
+  // }
 
   copyToClipBoard() {
     let batchMatrix = this.batchMatrix;

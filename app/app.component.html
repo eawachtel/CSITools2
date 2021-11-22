@@ -10,6 +10,10 @@
         <span>Spring Spline Builder</span>
       </button>
       <button mat-menu-item
+        (click) = 'setShaftSpringTool();'>
+        <span>Shaft Spring Builder</span>
+      </button>
+      <button mat-menu-item
         (click) = 'setDOETool();'>
         <span>DOE</span>
       </button>
@@ -19,11 +23,16 @@
     </mat-menu>
     <span style='margin-left: 1vw;'>CSI Tools</span>
     <span class="toolbar-spacer"></span>
+    <span *ngIf="selectedApp === 'Shaft Spring Builder'" style='right: 10vw; ;'>Shaft Spring Builder</span>
     <span *ngIf="selectedApp === 'Spring Spline Builder'" style='right: 10vw; ;'>Spring Spline Builder</span>
     <span *ngIf="selectedApp === 'DOE'" style='right: 10vw; ;'>DOE Tool</span>
   </mat-toolbar>
 
   <div >
+    <div *ngIf="selectedApp === 'Shaft Spring Builder'">
+      <shaft-spring-builder *ngIf="selectedApp ==='Shaft Spring Builder'"></shaft-spring-builder>
+    </div>
+
     <div *ngIf="selectedApp === 'Spring Spline Builder'">
       <spring-spline-builder *ngIf="selectedApp ==='Spring Spline Builder'"></spring-spline-builder>
     </div>

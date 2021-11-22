@@ -18,4 +18,8 @@ export class AppComponent {
     this.selectedApp = 'DOE';
   }
 
+  setShaftSpringTool(){
+    this.selectedApp = 'Shaft Spring Builder';
+  }
+
 }

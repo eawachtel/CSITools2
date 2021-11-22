@@ -21,6 +21,7 @@ import { DOEFactorMatrixComponent } from './components/doefactor-matrix/doefacto
 import { BatchCreationComponent } from './components/batch-creation/batch-creation.component';
 import { SubmitDialogModule } from '../app/components/submit-dialog/submit-dialog.module';
 import { SpringSplineBuilderModule } from './components/spring-spline-builder/spring-spline-builder.module';
+import { ShaftSpringBuilderModule } from './components/shaft-spring-builder/shaft-spring-builder.module'
 
 
 
@@ -29,7 +30,8 @@ import { SpringSplineBuilderModule } from './components/spring-spline-builder/sp
     AppComponent,
     DOEFactorMatrixComponent,
     BatchCreationComponent,
-    
+   
+       
   ],
   imports: [
     BrowserModule,
@@ -51,6 +53,7 @@ import { SpringSplineBuilderModule } from './components/spring-spline-builder/sp
     MatDialogModule,
     SubmitDialogModule,
     SpringSplineBuilderModule,
+    ShaftSpringBuilderModule,
     ClipboardModule
   ],
   providers: [],

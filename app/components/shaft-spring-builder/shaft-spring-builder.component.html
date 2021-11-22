@@ -1,0 +1,15 @@
+<div style='margin: 2vh;' class='flex-row'>
+    <div>
+        <input type="file"
+            id="browser"
+            style='display:none'
+            accept=".csv*"
+            (change)="fileChangeListener($event)">
+        <span>
+            <button mat-raised-button color="primary" 
+            onclick= "document.getElementById('browser').click()"
+                id='browser'>Select Shaft Spring .csv File
+            </button>
+        </span>
+    </div>
+</div>
