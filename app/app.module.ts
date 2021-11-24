@@ -23,7 +23,8 @@ import { BatchCreationComponent } from './components/batch-creation/batch-creati
 import { SubmitDialogModule } from '../app/components/submit-dialog/submit-dialog.module';
 import { SpringSplineBuilderModule } from './components/spring-spline-builder/spring-spline-builder.module';
 import { BumpSpringBuilderModule } from './components/bump-spring-builder/bump-spring-builder.module';
-import { ShockBuilderModule } from './components/shock-builder/shock-builder.module'
+import { ShockBuilderModule } from './components/shock-builder/shock-builder.module';
+import { NotificationComponent } from './components/notification/notification.component'
 
 
 @NgModule({
@@ -31,6 +32,7 @@ import { ShockBuilderModule } from './components/shock-builder/shock-builder.mod
     AppComponent,
     DOEFactorMatrixComponent,
     BatchCreationComponent,
+    NotificationComponent,
   ],
   imports: [
     BrowserModule,
