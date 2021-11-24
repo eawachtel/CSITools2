@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
 import * as regression from 'regression';
 
+import { NotificationService } from '../../services/notification.service'
+
 interface IxyGraph {
   'x': number,
   'y': number
@@ -127,7 +129,7 @@ export class EnterPulldownComponent implements OnInit {
     }
   };
 
-  constructor(private clipboard: Clipboard) { }
+  constructor(private clipboard: Clipboard, private notificationService: NotificationService) { }
 
   ngOnInit(): void {
   }
@@ -932,6 +934,7 @@ export class EnterPulldownComponent implements OnInit {
       string = string + subString;
     });
     this.clipboard.copy(string);
+    this.notificationService.openSnackBar('Pulldown Input Data Copied to Clipboard')
    }
 
    public plotRFPulldownData(plotData:IxyGraph[]) {

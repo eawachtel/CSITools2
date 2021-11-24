@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import * as Papa from 'papaparse';
 
 import { NotificationService } from '../../services/notification.service'
@@ -135,26 +134,8 @@ export class BumpSpringBuilderComponent implements OnInit {
       string = string + subString;
     });
     this.clipboard.copy(string);
-    this.notificationService.openSnackBar('Test Notification')
+    this.notificationService.openSnackBar('Bump Spring Data Copied to Clipboard')
   }
 
-  // openSnackBar() {
-  //   this._snackBar.openFromComponent(ShaftSpringNotificationComponent, {
-  //     duration: this.durationInSeconds * 1000,
-  //   });
-  // }
 }
 
-// @Component({
-//   selector: 'bump-spring-copy-notification',
-//   templateUrl: 'bump-spring-copy-notification.html',
-//   styles: [
-//     `
-//     .notification {
-//       color: white;
-//       text-align: center;
-//     }
-//   `,
-//   ],
-// })
-// export class ShaftSpringNotificationComponent {}

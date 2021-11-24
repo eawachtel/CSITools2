@@ -3,6 +3,8 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import * as regression from 'regression';
 import { max } from 'lodash';
 
+import { NotificationService } from '../../services/notification.service'
+
 interface IxyGraph {
   'x': number,
   'y': number
@@ -90,7 +92,7 @@ export class SplineCreatorComponent implements OnInit {
   pastedSpringDataPersist:IxyGraph[] = [];
   pastedSpringDataMod:IxyGraph[] = [];
 
-  constructor(private clipboard: Clipboard) { }
+  constructor(private clipboard: Clipboard, private notificationService: NotificationService) { }
     
   ngOnInit(): void {
 
@@ -312,6 +314,7 @@ export class SplineCreatorComponent implements OnInit {
   public async copyFullDataset(){
     let string:string =  await this.copySpring(this.pastedSpringDataMod);
     this.clipboard.copy(string);
+    this.notificationService.openSnackBar('Full Ride Rate Override Data Copied to Clipboard')
   }
 
   public async copyPigtail() {
@@ -341,6 +344,7 @@ export class SplineCreatorComponent implements OnInit {
     });
 
     this.clipboard.copy(string);
+    this.notificationService.openSnackBar('Full Ride Rate Override Data Copied to Clipboard')
   }
 
   public plotSpringSplineData() {
