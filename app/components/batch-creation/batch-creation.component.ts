@@ -8,7 +8,7 @@ import { ExportToCsv } from 'export-to-csv';
 import { cloneDeep, initial, update } from 'lodash';
 import {partsDefList} from '../../external-data/part-definition-list'
 import { inputDisplayNames } from '../../external-data/batch-parameter-mapping'
-import {ExcelService} from '../../excel.service';
+import {ExportService} from '../../services/export-service.service';
 
 @Component({
   selector: 'batch-creation',
@@ -39,7 +39,7 @@ export class BatchCreationComponent implements OnInit {
   displayedColumns: string[] = ['attribute', 'values'];
   
 
-  constructor(public dialog: MatDialog, private clipboard: Clipboard, private excelService:ExcelService) { 
+  constructor(public dialog: MatDialog, private clipboard: Clipboard, private exportService:ExportService) { 
     
   }
 
@@ -368,7 +368,7 @@ export class BatchCreationComponent implements OnInit {
         updatedData.push(newObj);
         count = count + 1;
       }
-      this.excelService.exportAsExcelFile(updatedData, 'cloudBatchExport');
+      this.exportService.exportAsExcelFile(updatedData, 'cloudBatchExport');
     }
   }
 

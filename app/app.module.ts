@@ -16,13 +16,14 @@ import {MatInputModule} from '@angular/material/input'
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatTableModule} from '@angular/material/table';
 import {MatDialogModule} from '@angular/material/dialog';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DOEFactorMatrixComponent } from './components/doefactor-matrix/doefactor-matrix.component';
 import { BatchCreationComponent } from './components/batch-creation/batch-creation.component';
 import { SubmitDialogModule } from '../app/components/submit-dialog/submit-dialog.module';
 import { SpringSplineBuilderModule } from './components/spring-spline-builder/spring-spline-builder.module';
-import { ShaftSpringBuilderModule } from './components/shaft-spring-builder/shaft-spring-builder.module'
-
+import { BumpSpringBuilderModule } from './components/bump-spring-builder/bump-spring-builder.module';
+import { ShockBuilderModule } from './components/shock-builder/shock-builder.module'
 
 
 @NgModule({
@@ -30,8 +31,6 @@ import { ShaftSpringBuilderModule } from './components/shaft-spring-builder/shaf
     AppComponent,
     DOEFactorMatrixComponent,
     BatchCreationComponent,
-   
-       
   ],
   imports: [
     BrowserModule,
@@ -51,9 +50,11 @@ import { ShaftSpringBuilderModule } from './components/shaft-spring-builder/shaf
     MatTableModule,
     MatAutocompleteModule,
     MatDialogModule,
+    MatSnackBarModule,
     SubmitDialogModule,
     SpringSplineBuilderModule,
-    ShaftSpringBuilderModule,
+    BumpSpringBuilderModule,
+    ShockBuilderModule,
     ClipboardModule
   ],
   providers: [],

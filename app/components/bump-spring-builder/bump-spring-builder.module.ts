@@ -4,12 +4,12 @@ import {MatButtonModule} from '@angular/material/button';
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
 
-import {ShaftSpringBuilderComponent} from '../shaft-spring-builder/shaft-spring-builder.component'
+import {BumpSpringBuilderComponent} from './bump-spring-builder.component'
 
 
 @NgModule({
   declarations: [
-    ShaftSpringBuilderComponent
+    BumpSpringBuilderComponent
   ],
   imports: [
     CommonModule,
@@ -17,7 +17,7 @@ import {ShaftSpringBuilderComponent} from '../shaft-spring-builder/shaft-spring-
     PlotlyModule
   ],
   exports: [
-    ShaftSpringBuilderComponent
+    BumpSpringBuilderComponent
   ]
 })
-export class ShaftSpringBuilderModule { }
+export class BumpSpringBuilderModule { }

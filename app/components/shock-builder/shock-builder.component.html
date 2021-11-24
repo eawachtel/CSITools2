@@ -8,22 +8,15 @@
         <span>
             <button mat-raised-button color="primary" 
             onclick= "document.getElementById('browser').click()"
-                id='browser'>Select Shaft Spring .csv File
+                id='browser'>Select Shock .csv File
             </button>
         </span>
     </div>
 </div>
 <div>
-    <div style='margin: 2vh; padding: 10px; border: 2px solid black; border-radius: 10px'>
+    <div style='margin: 2vh; height: 60vh; padding: 10px; border: 2px solid black; border-radius: 10px'>
         <plotly-plot [data]="graph.data" [layout]="graph.layout"
             [useResizeHandler]="true" [style]="{position: 'relative', width: '100%', height: '100%'}">
         </plotly-plot>
     </div>
-</div>
-<div  style='margin-left: 2vh;' class='flex-row' *ngIf = 'displayedData.length > 0'>
-    <button 
-        mat-raised-button color="primary" 
-        class='.btn'
-        (click) = 'copySplineDataToClip();'>Copy Shaft Spring Data
-    </button>
 </div>

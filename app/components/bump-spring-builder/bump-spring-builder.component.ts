@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import * as Papa from 'papaparse';
 
 @Component({
-  selector: 'shaft-spring-builder',
-  templateUrl: './shaft-spring-builder.component.html',
-  styleUrls: ['./shaft-spring-builder.component.css']
+  selector: 'bump-spring-builder',
+  templateUrl: './bump-spring-builder.component.html',
+  styleUrls: ['./bump-spring-builder.component.css']
 })
-export class ShaftSpringBuilderComponent implements OnInit {
+export class BumpSpringBuilderComponent implements OnInit {
+  durationInSeconds = 2;
   displayedData:{x: number, y: number}[] = [];
   graph = {
     data: [
@@ -41,7 +43,8 @@ export class ShaftSpringBuilderComponent implements OnInit {
       },
     },
   }
-  constructor(private clipboard: Clipboard) { }
+  
+  constructor(private clipboard: Clipboard, private _snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
   }
@@ -130,5 +133,26 @@ export class ShaftSpringBuilderComponent implements OnInit {
       string = string + subString;
     });
     this.clipboard.copy(string);
+    this.openSnackBar();
+  }
+
+  openSnackBar() {
+    this._snackBar.openFromComponent(ShaftSpringNotificationComponent, {
+      duration: this.durationInSeconds * 1000,
+    });
   }
 }
+
+@Component({
+  selector: 'bump-spring-copy-notification',
+  templateUrl: 'bump-spring-copy-notification.html',
+  styles: [
+    `
+    .notification {
+      color: white;
+      text-align: center;
+    }
+  `,
+  ],
+})
+export class ShaftSpringNotificationComponent {}
