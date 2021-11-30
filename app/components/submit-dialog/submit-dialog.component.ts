@@ -24,7 +24,6 @@ export class SubmitDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any) {
     this.uniqueValueList = this.data.uniqueValueList;
     this.newChannelsDict = this.data.newChannelsDict;
-    console.log(this.newChannelsDict)
   }
 
   ngOnInit(): void {

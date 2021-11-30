@@ -20,3 +20,12 @@
         </plotly-plot>
     </div>
 </div>
+
+<div style='margin: 2vh;' class='flex-row'>
+    <button
+        mat-raised-button color="primary"
+        *ngFor='let shockType of shockOptionsList; let i = index;'
+        (click) = 'copyShockData(i)'
+        class='btn'> Copy {{shockType}}
+    </button>
+</div>

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import * as Papa from 'papaparse';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { IShockGraph, IShockItem } from 'src/app/interfaces/IShockBuilder';
+import { NotificationService } from '../../services/notification.service'
 
 @Component({
   selector: 'shock-builder',
@@ -9,6 +11,8 @@ import { IShockGraph, IShockItem } from 'src/app/interfaces/IShockBuilder';
 })
 export class ShockBuilderComponent implements OnInit {
   displayedData:any[] = [];
+  shockOptionsList:string[] = ['CC/RC', 'CO/RC', 'CA/RA'];
+  colorList:string[] = ['blue', 'red', '#bcbd22'];
   shockOptionsCopyDict:any = {};
   graph:IShockGraph = {
     data: [
@@ -41,9 +45,20 @@ export class ShockBuilderComponent implements OnInit {
     },
   }
 
-  constructor() { }
+  constructor(private clipboard: Clipboard, private notificationService: NotificationService) { }
 
   ngOnInit(): void {
+  }
+
+  public copyShockData(i:number){
+    let shockDataCopy = this.shockOptionsCopyDict[this.shockOptionsList[i]];
+    let string = '';
+    shockDataCopy.forEach((item:any) => {
+      let subString = item['vel'].toString() + '\t' + item['force'].toString() + '\r';
+      string = string + subString;
+    });
+    this.clipboard.copy(string);
+    this.notificationService.openSnackBar(this.shockOptionsList[i] + ' Shock Data Copied to Clipboard')
   }
 
   public  async fileChangeListener(files: any) {
@@ -87,18 +102,18 @@ export class ShockBuilderComponent implements OnInit {
       });
     }
       // create list of objects with 3 distict choices CC / RC, CO / RC, CA / RA  [ { vel:   , CCRC:  , ect } ]
-    let shockOptionsList:string[] = ['CC/RC', 'CO/RC', 'CA/RA'];
-    let colorList:string[] = ['blue', 'red', 'green'];
+    // let shockOptionsList:string[] = ['CC/RC', 'CO/RC', 'CA/RA'];
+    // let colorList:string[] = ['blue', 'red', 'green'];
     let shockOptionsDict:any = {};
     this.shockOptionsCopyDict = {};
-    shockOptionsList.forEach((item:string) => {
+    this.shockOptionsList.forEach((item:string) => {
       shockOptionsDict[item] = [];
       this.shockOptionsCopyDict[item] = [];
     });
 
     // add compression side of curves from 0 to 9 in/sec
     for ( let vel = 9 ; vel >= 0 ; vel-- ) {
-      shockOptionsList.forEach((option:string) => {
+      this.shockOptionsList.forEach((option:string) => {
         let compression:string = option.substring(0, 2)
         let force = dataDict[compression][vel]
         shockOptionsDict[option].push({vel: vel, force: force});
@@ -108,7 +123,7 @@ export class ShockBuilderComponent implements OnInit {
 
     // add rebound side of curves from 1 to 9 in/sec
     for ( let vel = 1 ; vel <= 9 ; vel++ ) {
-      shockOptionsList.forEach((option:string) => {
+      this.shockOptionsList.forEach((option:string) => {
         let rebound:string = option.substr(-2)
         let force:number = dataDict[rebound][vel]
         shockOptionsDict[option].push({vel: vel, force: force});
@@ -116,16 +131,14 @@ export class ShockBuilderComponent implements OnInit {
       });
     }
     
-    return { data: shockOptionsDict, shockOptionsList: shockOptionsList, colorList: colorList }
+    return shockOptionsDict
   }
 
   public plotData(returnedData:any){
     let plotDataList: any = [];
-    let data = returnedData.data;
-    let shockOptionsList = returnedData.shockOptionsList;
-    let colorList = returnedData.colorList;
-    for (let i = 0; i < shockOptionsList.length; i++){
-      let shockType = data[shockOptionsList[i]];
+    let data = returnedData;
+    for (let i = 0; i < this.shockOptionsList.length; i++){
+      let shockType = data[this.shockOptionsList[i]];
       let xArray:number[] = [];
       let yArray:number[] = [];
       shockType.forEach((item:IShockItem) => {
@@ -136,14 +149,14 @@ export class ShockBuilderComponent implements OnInit {
         x: xArray,
         y: yArray,
         type: 'scattergl',
-        name: shockOptionsList[i],
+        name: this.shockOptionsList[i],
         mode: 'lines + markers',
         marker: {
-          color: colorList[i],
+          color: this.colorList[i],
           size: 6
         },
         line: {
-          color: colorList[i],
+          color: this.colorList[i],
           width: 2
         }
       }

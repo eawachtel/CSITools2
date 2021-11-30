@@ -69,14 +69,15 @@ export class BumpSpringBuilderComponent implements OnInit {
   public async parseCSVFiletoXY(data:any[]){
     let indexedData:any[]=[];
     let indexStart:number = 0;
+    let forceZero:number = 0;
     data.forEach((item:any, index:number) => {
       if (item[0] === 'PR_Disp' && item[1] === 'PR_Force'){indexStart = index}
     });
-
-    indexedData.push({x: +data[indexStart + 2][0], y: +data[indexStart + 2][1]}) // push first value as x:0 y:0
+    forceZero = +data[indexStart + 2][1];
+    indexedData.push({ x: +data[indexStart + 2][0], y: +data[indexStart + 2][1] - forceZero }) // push first value as x:0 y:0
     for (let i = indexStart + 3; i <= data.length - 1; i++){
       if (+data[i][0] > +data[i - 1][0]){
-        indexedData.push({x: +data[i][0], y: +data[i][1]})
+        indexedData.push({x: +data[i][0], y: +data[i][1] - forceZero })
       } else {break}
     
     }
