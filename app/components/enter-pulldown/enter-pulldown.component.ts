@@ -740,8 +740,8 @@ export class EnterPulldownComponent implements OnInit {
     this.lfGraph = this.lfGraph = {
       data: dataList,
       layout: 
-        {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"}, 
-        title: 'LF Shock vs LF Load',
+        {autosize: true, showlegend: true, legend: {x: .28, y: -.2, "orientation": "h"}, 
+        title: 'LF Load vs LF Shock',
         xaxis: {title: 'LF Shock Travel (in)', automargin: true, zeroline: false, showline: true, range: [lfXMin, lfXMax]},
         yaxis: {title: 'LF Load (lbf)', zeroline: false, showline: true},
         margin: {
@@ -1026,8 +1026,8 @@ export class EnterPulldownComponent implements OnInit {
     this.rfGraph = {
       data: dataList,
       layout: 
-        {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"},
-        title: 'RF Shock vs RF Load',
+        {autosize: true, showlegend: true, legend: {x: .28, y: -.2, "orientation": "h"},
+        title: 'RF Load vs RF Shock',
         xaxis: {title: 'RF Shock Travel (in)', zeroline: false, showline: true, range: [rfXMin, rfXMax]},
         yaxis: {title: 'RF Load (lbf)', zeroline: false, showline: true},
         margin: {

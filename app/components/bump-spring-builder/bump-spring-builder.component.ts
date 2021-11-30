@@ -31,9 +31,9 @@ export class BumpSpringBuilderComponent implements OnInit {
       }
     ],
     layout: 
-      {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"}, 
-      title: 'Travel vs Load',
-      xaxis: {title: 'Travel (in)', automargin: true, zeroline: false, showline: true},
+      {autosize: true, showlegend: true, legend: {x: .45, y: -.2, "orientation": "h"}, 
+      title: 'Load vs Displacement',
+      xaxis: {title: 'Displacement (in)', automargin: true, zeroline: false, showline: true},
       yaxis: {title: 'Load (lbf)', zeroline: false, showline: true},
       margin: {
         l: 70,
@@ -97,7 +97,7 @@ export class BumpSpringBuilderComponent implements OnInit {
         x: x,
         y: y,
         type: 'scattergl',
-        name: 'Pulldown Data',
+        name: 'Bump Spring Data',
         mode: 'markers',
         marker: {
           color: 'blue',
@@ -112,9 +112,9 @@ export class BumpSpringBuilderComponent implements OnInit {
     this.graph = {
       data: dataList,
       layout: 
-        {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"},
-        title: 'Displacement vs Load',
-        xaxis: {title: 'Travel (in)', automargin: true, zeroline: false, showline: true},
+        {autosize: true, showlegend: true, legend: {x: .45, y: -.2, "orientation": "h"},
+        title: 'Load vs Displacement',
+        xaxis: {title: 'Displacement (in)', automargin: true, zeroline: false, showline: true},
         yaxis: {title: 'Load (lbf)', zeroline: false, showline: true},
         margin: {
           l: 70,
