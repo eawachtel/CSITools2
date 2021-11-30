@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as Papa from 'papaparse';
+import { IShockGraph, IShockItem } from 'src/app/interfaces/IShockBuilder';
 
 @Component({
   selector: 'shock-builder',
@@ -8,7 +9,8 @@ import * as Papa from 'papaparse';
 })
 export class ShockBuilderComponent implements OnInit {
   displayedData:any[] = [];
-  graph = {
+  shockOptionsCopyDict:any = {};
+  graph:IShockGraph = {
     data: [
       {
         x: [0],
@@ -27,7 +29,7 @@ export class ShockBuilderComponent implements OnInit {
     layout: 
       {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"}, 
       title: 'Travel vs Load',
-      xaxis: {title: 'Travel (in)', automargin: true, zeroline: false, showline: true},
+      xaxis: {title: 'Travel (in)', automargin: true, zeroline: false, showline: true, range: [0, 9]},
       yaxis: {title: 'Load (lbf)', zeroline: false, showline: true},
       margin: {
         l: 70,
@@ -52,7 +54,7 @@ export class ShockBuilderComponent implements OnInit {
         skipEmptyLines: true,
         complete: async (result) => {
           let returnedData:any =  await this.parseCSVFiletoXY(result.data);
-          let plot = this.plotData(returnedData);
+          this.plotData(returnedData);
         }
           });
     } else {
@@ -61,71 +63,100 @@ export class ShockBuilderComponent implements OnInit {
   }
 
   public async parseCSVFiletoXY(data:any[]){
-    let indexedData:any[]=[];
     let indexStart:number = 0;
     let headerList:string[] = [];
-    let colorList:string[] = [];
     let dataDict:any = {};
-    let xAxis:number[] = [];
-
     data.forEach((item:any, index:number) => {
       if (item[0] === 'Velocity'){
         indexStart = index + 2;
         for (let i = 1; i < item.length; i++){
-          headerList.push(item[i]);
-          dataDict[item[i]] = [];
+          let header = item[i].substring(1);
+          headerList.push(header); 
+          dataDict[header] = {};
         }
       }
     });
 
     for (let i = indexStart; i <= data.length - 1; i++){
-      data[i].forEach((element:any, index:number) => {
-        if (index === 0){
-            xAxis.push(data[i][0]);
-        } else {
+      data[i].forEach((element:string, index:number) => {
+        if (index > 0){
           let key = headerList[ index - 1 ];
-          dataDict[key].push(+element);
-          let color:string = '';
-          if (headerList[ index - 1 ] === ' CO' || headerList[ index - 1 ] === ' RO'){ color = 'black' };
-          if (headerList[ index - 1 ] === ' CC' || headerList[ index - 1 ] === ' RC'){ color = 'blue' };
-          if (headerList[ index - 1 ] === ' CA' || headerList[ index - 1 ] === ' RA'){ color = 'orange' };
-          colorList.push(color);
+          let key2 = +data[i][0];
+          dataDict[key][key2] = +element;
         } 
       });
-      
+    }
+      // create list of objects with 3 distict choices CC / RC, CO / RC, CA / RA  [ { vel:   , CCRC:  , ect } ]
+    let shockOptionsList:string[] = ['CC/RC', 'CO/RC', 'CA/RA'];
+    let colorList:string[] = ['blue', 'red', 'green'];
+    let shockOptionsDict:any = {};
+    this.shockOptionsCopyDict = {};
+    shockOptionsList.forEach((item:string) => {
+      shockOptionsDict[item] = [];
+      this.shockOptionsCopyDict[item] = [];
+    });
+
+    // add compression side of curves from 0 to 9 in/sec
+    for ( let vel = 9 ; vel >= 0 ; vel-- ) {
+      shockOptionsList.forEach((option:string) => {
+        let compression:string = option.substring(0, 2)
+        let force = dataDict[compression][vel]
+        shockOptionsDict[option].push({vel: vel, force: force});
+        this.shockOptionsCopyDict[option].push({vel: vel, force: force});
+      })
+    }
+
+    // add rebound side of curves from 1 to 9 in/sec
+    for ( let vel = 1 ; vel <= 9 ; vel++ ) {
+      shockOptionsList.forEach((option:string) => {
+        let rebound:string = option.substr(-2)
+        let force:number = dataDict[rebound][vel]
+        shockOptionsDict[option].push({vel: vel, force: force});
+        this.shockOptionsCopyDict[option].push({vel: vel * -1, force: force});
+      });
     }
     
-    return { dataDict: dataDict, headerList: headerList, xAxis: xAxis, colorList: colorList}
+    return { data: shockOptionsDict, shockOptionsList: shockOptionsList, colorList: colorList }
   }
 
   public plotData(returnedData:any){
     let plotDataList: any = [];
-    for (let i = 0; i < returnedData.headerList.length; i++){
-      let plotObj = {
-        x: returnedData.xAxis,
-        y: returnedData.dataDict[returnedData.headerList[i]],
+    let data = returnedData.data;
+    let shockOptionsList = returnedData.shockOptionsList;
+    let colorList = returnedData.colorList;
+    for (let i = 0; i < shockOptionsList.length; i++){
+      let shockType = data[shockOptionsList[i]];
+      let xArray:number[] = [];
+      let yArray:number[] = [];
+      shockType.forEach((item:IShockItem) => {
+        xArray.push(item.vel);
+        yArray.push(item.force);
+      });
+      let plotObj:any = {
+        x: xArray,
+        y: yArray,
         type: 'scattergl',
-        name: returnedData.headerList[i],
+        name: shockOptionsList[i],
         mode: 'lines + markers',
         marker: {
-          color: returnedData.colorList[i],
+          color: colorList[i],
           size: 6
         },
         line: {
-          color: returnedData.colorList[i],
+          color: colorList[i],
           width: 2
         }
       }
       plotDataList.push(plotObj)
-    }
-
+    }; 
+  
     this.graph = {
       data: plotDataList,
       layout: 
-        {autosize: true, showlegend: true, legend: {x: .38, y: -.2, "orientation": "h"},
-        title: 'Displacement vs Load',
-        xaxis: {title: 'Displacement (in)', automargin: true, zeroline: false, showline: true},
-        yaxis: {title: 'Load (lbf)', zeroline: false, showline: true},
+        {autosize: true, showlegend: true, legend: {x: .43, y: -.2, "orientation": "h"},
+        title: 'Force vs Velocity',
+        xaxis: {title: 'Velocity (in / sec)', automargin: true, zeroline: false, showline: true, range:[0, 9]},
+        yaxis: {title: 'Force (lbf)', zeroline: false, showline: true},
         margin: {
           l: 70,
           r: 50,

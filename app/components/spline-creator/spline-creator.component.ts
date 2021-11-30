@@ -47,7 +47,7 @@ export class SplineCreatorComponent implements OnInit {
   }
   splineStart:number = 0;
   springSplineType:string = 'single';
-  pasteBoxString:string = 'Click box and Paste Ride Rate Data Here'
+  pasteBoxString:string = 'Click box and Paste Ride Rate Data Here (Ctrl + V)'
   displayedColumns: string[] = [];
   dataSource: any[] = [];
   
@@ -172,7 +172,7 @@ export class SplineCreatorComponent implements OnInit {
   }
 
   public clearSpringSplineData(){
-    this.pasteBoxString = 'Click box and Paste Ride Rate Data Here'
+    this.pasteBoxString = 'Click box and Paste Ride Rate Data Here (Ctrl + V)'
     this.pastedSpringDataPersist = [];
     this.pastedSpringDataMod = [];
     // this.fullSpringCopy = [];
@@ -320,6 +320,7 @@ export class SplineCreatorComponent implements OnInit {
   public async copyPigtail() {
     let string:string = await this.copySpring(this.rideRateOverride);
     this.clipboard.copy(string);
+    this.notificationService.openSnackBar('Ride Rate Override Data Copied to Clipboard')
   }
 
   public async copySpline() {
@@ -344,7 +345,7 @@ export class SplineCreatorComponent implements OnInit {
     });
 
     this.clipboard.copy(string);
-    this.notificationService.openSnackBar('Full Ride Rate Override Data Copied to Clipboard')
+    this.notificationService.openSnackBar('Spring Spline Data Copied to Clipboard')
   }
 
   public plotSpringSplineData() {
