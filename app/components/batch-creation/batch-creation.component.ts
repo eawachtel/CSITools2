@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { SubmitDialogComponent } from '../submit-dialog/submit-dialog.component';
+import { SubmitCloudDialogComponent } from '../submit-cloud-dialog/submit-cloud-dialog.component';
 import * as _ from 'lodash';
 import * as Papa from 'papaparse';
 import { ExportToCsv } from 'export-to-csv';
@@ -138,7 +139,6 @@ export class BatchCreationComponent implements OnInit {
   }
 
   dialogValues(){
-    let test = this.batchDict;
     let commonValsList: any[] = [];
     //find common values in dialogInputFactors and create list of object that has initial 1,2,3 ect values in them
     let commonVals = _.intersection(this.dialogInputFactors, this.inputFactorList)
@@ -179,10 +179,10 @@ export class BatchCreationComponent implements OnInit {
               attribute: channel,
               baselineValue: null,
               values: element.values,
-              unit: null}
+              unit: null
             }
-          )
         });
+      });
       this.openDialog(uniqueValueList, newChannelsDict)
     }
 
@@ -239,6 +239,91 @@ export class BatchCreationComponent implements OnInit {
     });
   }
 
+  public async openCloudDialog(){
+    let factors = Object.values(this.cloudBatchIndexDict) // get dialog values  ( ie LFSBARM, LFUCA, ect)
+    let dialogVals:any = _.intersection(factors, this.dialogInputFactors) // get common values that need parts def
+    let dialogValsList:any[] = []; // create list is obj {channel: LFSBARM, values: []}
+    /// create list of parts requiring selection to populate btn color and btn display values
+    if (dialogVals.length > 0){
+      dialogVals.forEach((key:string) => {
+          let list:number[] = [];
+          this.batchMatrixCloud.forEach((item:any) =>{
+            let value = item[key]
+            list.push(value)
+          });
+          let uniqueVals:any = [...new Set(list)].sort();
+          let isLoadedList:boolean[] = [];
+          uniqueVals.forEach((value:string) =>{
+            isLoadedList.push(false)
+        });
+        dialogValsList.push({channel: key, isLoaded: isLoadedList, values: uniqueVals }); 
+      });
+    }
+    
+    // creates a list of obj that define part values
+    let newChannelsDict:any = {}
+    dialogValsList.forEach((element: { channel: string, values: string[] }) => {
+      let newChannels = partsDefList[element.channel].channels;
+      newChannels.forEach((channel: any) => {
+        newChannelsDict[channel] = 
+          {
+            attribute: channel,
+            baselineValue: null,
+            values: element.values,
+            unit: null
+          }
+      });
+    });
+   
+    
+    const dialogRef = this.dialog.open(SubmitCloudDialogComponent, {
+      width: '600px',
+      data: 
+        {
+          dialogValsList: dialogValsList,
+          newChannelsDict:newChannelsDict
+        }
+      });
+
+    dialogRef.afterClosed().subscribe( async result => {
+      if (result === undefined) {
+        alert('Dialog Closed No Files Loaded')
+      } else {
+        let returnedData = result.data;
+        let newValuesDict = await this.parseCloudParts(returnedData);
+        let newKeys = Object.keys(newValuesDict);
+
+        //add new values for parts
+        dialogVals.forEach((key:string) => {
+          this.batchMatrixCloud.forEach((row) => {
+            let index = +row[key];
+            newKeys.forEach((newKey) => {
+              row[newKey] = newValuesDict[newKey][index];
+            });
+          });
+        });
+
+        // delete part generic values
+        dialogVals.forEach((key:string) => {
+          this.batchMatrixCloud.forEach((row) => {
+            delete row[key];
+          });
+        });
+        this.displayedColumns = [];
+        this.displayedColumns = Object.keys(this.batchMatrixCloud[0]);
+        this.batchMatrixCloud = cloneDeep(this.batchMatrixCloud);
+      }
+    });
+  } 
+
+  public async parseCloudParts(returnedData:any){
+    let newValuesDict:any = {};
+    returnedData.forEach((item:any) => {
+      newValuesDict[item.attribute] = item.values;
+    });
+    return newValuesDict
+  }
+
   public async processFunctions() {
       Object.keys(this.batchDict).forEach((batchKey:any) => {
         if (this.functionInputFactors.includes(batchKey)) {
@@ -256,7 +341,6 @@ export class BatchCreationComponent implements OnInit {
 
   public async processFunctionsCloud() {
     let updatedData:any[] = [];
-    let test = this.cloudBatchIndexDict
     Object.values(this.cloudBatchIndexDict).forEach((item:any) => {
       if (this.functionInputFactors.includes(item)) {
         switch(item) {
@@ -327,6 +411,7 @@ export class BatchCreationComponent implements OnInit {
             let data:any[]
             await this.processInputsCloud(result.data); // put data in correct columns/rows with display names
             await this.processFunctionsCloud(); // run functions on channels requiring addition channel defs ie. Jackscrew, spring spline rates ect
+            this.openCloudDialog();
           }
         }
           });

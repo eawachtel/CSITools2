@@ -75,10 +75,13 @@ export class BumpSpringBuilderComponent implements OnInit {
     });
     forceZero = +data[indexStart + 2][1];
     indexedData.push({ x: +data[indexStart + 2][0], y: +data[indexStart + 2][1] - forceZero }) // push first value as x:0 y:0
+    let maxX = 0;
     for (let i = indexStart + 3; i <= data.length - 1; i++){
+      let test1 = +data[i][0]
+      let test2 = +data[i - 1][0]
       if (+data[i][0] > +data[i - 1][0]){
         indexedData.push({x: +data[i][0], y: +data[i][1] - forceZero })
-      } else {break}
+      }
     
     }
     return indexedData

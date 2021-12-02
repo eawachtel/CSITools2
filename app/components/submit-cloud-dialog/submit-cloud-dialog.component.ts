@@ -2,16 +2,15 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import * as Papa from 'papaparse';
 
-
 import {partsDefList} from '../../external-data/part-definition-list'
 import {inputDisplayNames} from '../../external-data/batch-parameter-mapping'
 
 @Component({
-  selector: 'app-submit-dialog',
-  templateUrl: './submit-dialog.component.html',
-  styleUrls: ['./submit-dialog.component.css']
+  selector: 'app-submit-cloud-dialog',
+  templateUrl: './submit-cloud-dialog.component.html',
+  styleUrls: ['./submit-cloud-dialog.component.css']
 })
-export class SubmitDialogComponent implements OnInit {
+export class SubmitCloudDialogComponent implements OnInit {
 
   uniqueValueList: any;
   newChannelsDict:any = [];
@@ -19,24 +18,24 @@ export class SubmitDialogComponent implements OnInit {
   j:number = 0;
   submitEnabled:boolean = true;
 
-  constructor( public dialogRef: MatDialogRef<SubmitDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
-    this.uniqueValueList = this.data.uniqueValueList;
-    this.newChannelsDict = this.data.newChannelsDict;
-  }
+  constructor(public dialogRef: MatDialogRef<SubmitCloudDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any) { 
+      this.uniqueValueList = this.data.dialogValsList;
+      this.newChannelsDict = this.data.newChannelsDict;
+    }
 
   ngOnInit(): void {
-    
+   
   }
 
   onSubmit(){
-  let returnData:any[] = [];
-    Object.values(this.newChannelsDict).forEach((object:any) => {
-      returnData.push(object);  
-    });
-    this.dialogRef.close({data: returnData});
-  }
-
+    let returnData:any[] = [];
+      Object.values(this.newChannelsDict).forEach((object:any) => {
+        returnData.push(object);  
+      });
+      this.dialogRef.close({data: returnData});
+    }
+  
   onCancel(): void {
     this.dialogRef.close({data: null});
   }
@@ -46,7 +45,7 @@ export class SubmitDialogComponent implements OnInit {
     this.j = j;
   }
 
-public addCSVData(files: any) {
+  public addCSVData(files: any) {
     this.uniqueValueList[this.i].isLoaded[this.j] = true;
     let file = files.target.files[0]
     if (file) {
@@ -66,7 +65,6 @@ public addCSVData(files: any) {
     } else {
       alert('Problem loading CSV file');
     }
-    
   }
 
   setEnabled(){
