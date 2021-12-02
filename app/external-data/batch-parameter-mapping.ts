@@ -1946,6 +1946,12 @@ export const inputDisplayNames: any = {
     'SpringRubberRR3_Rate':
     {'WorkflowName': 'SpringRubberRR3_Rate', 'DisplayName': 'SpringRubberRR3_Rate', 'Unit': 'lb/in', 'Scale': '0.00571015', 'Offset': ''}
     ,
+    'SpringStopLF_Spline':
+    {'WorkflowName': 'SpringStopLF_Spline', 'DisplayName': 'SpringStopLF_Spline', 'Unit': 'lb/in', 'Scale': '4.44822', 'Offset': ''}
+    ,
+    'SpringStopRF_Spline':
+    {'WorkflowName': 'SpringStopRF_Spline', 'DisplayName': 'SpringStopRF_Spline', 'Unit': 'lb/in', 'Scale': '4.44822', 'Offset': ''}
+    ,
     'SteeringBox_Ratio':
     {'WorkflowName': 'SteeringBoxRatio', 'DisplayName': 'SteeringBox_Ratio', 'Unit': '', 'Scale': '', 'Offset': ''}
     ,

@@ -52,5 +52,9 @@ export const inputDisplayNames: string[] = [
     'Tire_LR_PSI',
     'Tire_RR_PSI',
     'SpringStopEnableRR',
+    'SpringStopLF_Spline_Rate',
+    'SpringStopRF_Spline_Rate',
+    'SpringStopGapLF',
+    'SpringStopGapRF',
     'SpringStopGapRR'
 ]

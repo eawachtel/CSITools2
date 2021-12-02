@@ -34,7 +34,7 @@ export class BatchCreationComponent implements OnInit {
   inputFactorList: string[] = [];
   inputDict: any = {};
 
-  functionInputFactors: any[] = ['JackscrewAdjustLR', 'JackscrewAdjustRR'];
+  functionInputFactors: any[] = ['JackscrewAdjustLR', 'JackscrewAdjustRR', 'SpringStopLF_Spline', 'SpringStopRF_Spline'];
   dialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA']
   displayedColumns: string[] = ['attribute', 'values'];
   
@@ -65,8 +65,11 @@ export class BatchCreationComponent implements OnInit {
       if (item.indexOf(blank) !== -1){
         let title = item.substr(0, item.indexOf(blank));
         if (title === 'Factor'){
-          this.displayedColumns.push(data[0][item].substring(2)) // Add displayed columns  {0: 'SpringLR_Rate'}  index: displayName
-          this.cloudBatchIndexDict[item] = data[0][item].substring(2); // {Factor 1: 'SpringLR_Rate'} DE Name: displayName
+          let displayName = data[0][item].substring(2);
+          if (displayName === 'SpringStopLF_Spline_Rate'){displayName = 'SpringStopLF_Spline'}
+          if (displayName === 'SpringStopRF_Spline_Rate'){displayName = 'SpringStopRF_Spline'}
+          this.displayedColumns.push(displayName); // Add displayed columns  {0: 'SpringLR_Rate'}  index: displayName
+          this.cloudBatchIndexDict[item] = displayName; // {Factor 1: 'SpringLR_Rate'} DE Name: displayName
           this.cloudBatchFactorList.push(item);
           this.cloudBatchIndexList.push(index);
         }
@@ -253,6 +256,7 @@ export class BatchCreationComponent implements OnInit {
 
   public async processFunctionsCloud() {
     let updatedData:any[] = [];
+    let test = this.cloudBatchIndexDict
     Object.values(this.cloudBatchIndexDict).forEach((item:any) => {
       if (this.functionInputFactors.includes(item)) {
         switch(item) {
@@ -272,6 +276,22 @@ export class BatchCreationComponent implements OnInit {
             });
             this.batchMatrixCloud = updatedData;
             break;
+          case 'SpringStopLF_Spline':
+            this.batchMatrixCloud.forEach((row:any) => {
+              let value = (row[item]);
+              let updatedValue = (value * 4.44822).toString();
+              let newValue = '0, 0; .0254,' + updatedValue + ';';
+              row[item] = newValue;
+            });
+            break;
+          case 'SpringStopRF_Spline':
+          this.batchMatrixCloud.forEach((row:any) => {
+            let value = (row[item]);
+            let updatedValue = (value * 4.44822).toString();
+            let newValue = '0, 0; .0254,' + updatedValue + ';';
+            row[item] = newValue;
+          });
+          break;
         }
       }
     })
@@ -306,7 +326,7 @@ export class BatchCreationComponent implements OnInit {
           if (this.batchType === 'cloud'){
             let data:any[]
             await this.processInputsCloud(result.data); // put data in correct columns/rows with display names
-            await this.processFunctionsCloud(); // run functions on channels requiring addition channel defs ie. FARB ARMS, Jackscrew ect
+            await this.processFunctionsCloud(); // run functions on channels requiring addition channel defs ie. Jackscrew, spring spline rates ect
           }
         }
           });
@@ -316,6 +336,7 @@ export class BatchCreationComponent implements OnInit {
   }
 
   exportBatchMatrix(){
+    let excludedUnitConversions = ['SpringStopLF_Spline', 'SpringStopRF_Spline']
     if (this.batchType === 'desktop'){
       const options = { 
         fieldSeparator: ',',
@@ -362,7 +383,11 @@ export class BatchCreationComponent implements OnInit {
         let objList = Object.keys(this.batchMatrixCloud[i]);
         objList.forEach((key) => {
           let newKey = inputDisplayNames[key].WorkflowName;
-          let convertedVal = this.batchMatrixCloud[i][key] * (1 / inputDisplayNames[key].Scale);
+          let convertedVal;
+          if (excludedUnitConversions.includes(newKey)){convertedVal = this.batchMatrixCloud[i][key]} 
+          else{
+            convertedVal = this.batchMatrixCloud[i][key] * (1 / inputDisplayNames[key].Scale);
+          }
           newObj[key] = convertedVal;
         });
         updatedData.push(newObj);
@@ -371,10 +396,6 @@ export class BatchCreationComponent implements OnInit {
       this.exportService.exportAsExcelFile(updatedData, 'cloudBatchExport');
     }
   }
-
-  // public exportAsXLSX(data:any[],):void {
-  //   this.excelService.exportAsExcelFile(data, 'cloudBatchExport');
-  // }
 
   copyToClipBoard() {
     let batchMatrix = this.batchMatrix;

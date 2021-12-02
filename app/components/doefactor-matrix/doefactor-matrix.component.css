@@ -6,11 +6,30 @@
   width: 100%;
 }
 
+.center-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: left;
+}
+
+.margins{
+  margin-right:5px;
+  margin-left:5px;
+}
+
+.btn-center{
+  margin-top: 10px;
+}
+
 .column {
   display: flex;
   flex-direction: column;
   flex-basis: 100%;
   flex: 1;
+  margin: 1vw;
+  height: 75vh;
 }
 
 .blue-column {

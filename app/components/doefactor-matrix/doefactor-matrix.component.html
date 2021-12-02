@@ -1,7 +1,7 @@
 <div style='margin: 1vw;'>
   <div class='row'>
       <div class='column'>
-        <div class='blue-column'>
+       
           <h4>DOE Factor Matrix Inputs</h4>
           <div class='flex-row'>
             
@@ -27,35 +27,36 @@
               </button>
             
           </div>
+          &nbsp;
+          <div style="overflow-y: auto; padding: 1vw;">
+            <div class="center-row" *ngFor = 'let factor of inputFactorMatrix, index as i' >
 
-          <div class="row"  *ngFor = 'let factor of inputFactorMatrix, index as i'>
+                <mat-form-field  appearance="outline" style="width: 250px;" class="margins">
+                  <mat-label>Factor Name</mat-label>
+                  <mat-select [(ngModel)] = "factor.channel"  >
+                    <input matInput type="text" placeholder= 'Search' (keyup) = "onKey($event, i);">
+                    <mat-option *ngFor="let channel of factor.channelOptionsFiltered" (click) = "onChannelSelect(i);" [value]="channel">{{channel}}</mat-option> 
+                  </mat-select> 
+                </mat-form-field>
+              
+                <mat-form-field appearance="outline" class="margins">
+                  <mat-label>Low Value</mat-label>
+                  <input matInput type="text" [(ngModel)]="factor.low">
+                </mat-form-field>
+              
+                <mat-form-field appearance="outline" class="margins">
+                  <mat-label>High Value</mat-label>
+                  <input matInput type="text" [(ngModel)]="factor.high">
+                </mat-form-field>
             
-            <mat-form-field style='padding:0; margin:0;' appearance="outline">
-              <mat-label>Factor Name</mat-label>
-              <mat-select [(ngModel)] = "factor.channel">
-                <input matInput type="text" placeholder= 'Search' (keyup) = "onKey($event, i);">
-                <mat-option *ngFor="let channel of factor.channelOptionsFiltered" (click) = "onChannelSelect(i);" [value]="channel">{{channel}}</mat-option> 
-              </mat-select> 
-            </mat-form-field>
-          
-            <mat-form-field appearance="outline">
-              <mat-label>Low Value</mat-label>
-              <input matInput type="text" [(ngModel)]="factor.low">
-            </mat-form-field>
-          
-            <mat-form-field appearance="outline">
-              <mat-label>High Value</mat-label>
-              <input matInput type="text" [(ngModel)]="factor.high">
-            </mat-form-field>
-        
-            <button  mat-icon-button color="primary"
-                (click) = "deleteFactor(i);">
-                <mat-icon>close</mat-icon>
-            </button>
-          
+                <button  mat-icon-button color="primary" class="btn-center"
+                    (click) = "deleteFactor(i);">
+                    <mat-icon style='font-weight: bold;'>close</mat-icon>
+                </button>
+            </div>
           </div>
 
-        </div>
+        
       
       </div>
    
@@ -83,7 +84,7 @@
             </span>
           </div>
           &nbsp;
-          <div class='row'>
+          <div class='row' style="overflow-y: auto;">
             <span class="example-container">
                 <h5>Output Channel List</h5>
                 <div
