@@ -29,12 +29,9 @@ export class SubmitCloudDialogComponent implements OnInit {
   }
 
   onSubmit(){
-    let returnData:any[] = [];
-      Object.values(this.newChannelsDict).forEach((object:any) => {
-        returnData.push(object);  
-      });
-      this.dialogRef.close({data: returnData});
-    }
+    let dictTest = this.newChannelsDict
+    this.dialogRef.close({data: this.newChannelsDict});
+  }
   
   onCancel(): void {
     this.dialogRef.close({data: null});
@@ -84,25 +81,21 @@ export class SubmitCloudDialogComponent implements OnInit {
   }
 
   addPartData(csvDict:any, j:number, i:number) {
+    let test20 = this.newChannelsDict
     let origChannel = this.uniqueValueList[i].channel;
+    let displayValue = this.uniqueValueList[i].displayValsList[j];
     let channelList = partsDefList[origChannel].channels;
-    channelList.forEach((displayChannel:any) => {
+    channelList.forEach((displayChannel:any) => { // assign a dict with the key as displayed values (DE Values) and part values
       let paramMapObj = inputDisplayNames[displayChannel];
       let value = csvDict[paramMapObj.WorkflowName];
-      let scaleValue = (+value * +paramMapObj.Scale).toFixed(3).toString();
-      let baseValues = this.newChannelsDict[displayChannel].values;
-      let testValue = this.uniqueValueList[i].values[j];
-      let updatedValues: string[] = [];
-      baseValues.forEach((value:any) => {
-        if (value == testValue) {
-          updatedValues.push(scaleValue);
-        } else {
-          updatedValues.push(value);
-        }
-        
-        });
-      this.newChannelsDict[displayChannel].values = updatedValues;
-      });
+      if (displayChannel !== 'SpringStopRR_Spline'){
+        let scaleValue = (+value * +paramMapObj.Scale).toFixed(3).toString();
+        this.newChannelsDict[displayChannel][displayValue] = scaleValue;
+      }
+      if (displayChannel === 'SpringStopRR_Spline'){
+        this.newChannelsDict[displayChannel][displayValue] = value;
+      }  
+    });
     this.setEnabled();
   }
 }

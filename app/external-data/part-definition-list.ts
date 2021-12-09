@@ -52,5 +52,10 @@ export const partsDefList: any = {
             'UCAUBJRFY',
             'UCAUBJRFZ'
         ]
+    },
+    'SpringStopRR': {channels:
+        [
+            'SpringStopRR_Spline'
+        ]
     }
 }

@@ -37,6 +37,7 @@ export class BatchCreationComponent implements OnInit {
 
   functionInputFactors: any[] = ['JackscrewAdjustLR', 'JackscrewAdjustRR', 'SpringStopLF_Spline', 'SpringStopRF_Spline'];
   dialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA']
+  cloudDialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA', 'SpringStopRR']
   displayedColumns: string[] = ['attribute', 'values'];
   
 
@@ -56,7 +57,6 @@ export class BatchCreationComponent implements OnInit {
   
   public async processInputsCloud(data:any[]){
     await this.resetCloudVariables();
-    
     // create headers and displayed columns from 360 output
     let headers = data[0];
     let headersKeys = Object.keys(headers);
@@ -240,8 +240,9 @@ export class BatchCreationComponent implements OnInit {
   }
 
   public async openCloudDialog(){
+    
     let factors = Object.values(this.cloudBatchIndexDict) // get dialog values  ( ie LFSBARM, LFUCA, ect)
-    let dialogVals:any = _.intersection(factors, this.dialogInputFactors) // get common values that need parts def
+    let dialogVals:any = _.intersection(factors, this.cloudDialogInputFactors) // get common values that need parts def
     let dialogValsList:any[] = []; // create list is obj {channel: LFSBARM, values: []}
     /// create list of parts requiring selection to populate btn color and btn display values
     if (dialogVals.length > 0){
@@ -251,27 +252,28 @@ export class BatchCreationComponent implements OnInit {
             let value = item[key]
             list.push(value)
           });
-          let uniqueVals:any = [...new Set(list)].sort();
+          let displayVals:any = [...new Set(list)].sort();
           let isLoadedList:boolean[] = [];
-          uniqueVals.forEach((value:string) =>{
-            isLoadedList.push(false)
+          let uniqueValsDict:any = {};
+          displayVals.forEach((value:string) =>{
+            isLoadedList.push(false);
+            uniqueValsDict[value.toString()] = value;
         });
-        dialogValsList.push({channel: key, isLoaded: isLoadedList, values: uniqueVals }); 
+        dialogValsList.push({channel: key, isLoaded: isLoadedList, displayValsList: displayVals, values: uniqueValsDict }); 
       });
     }
     
     // creates a list of obj that define part values
     let newChannelsDict:any = {}
-    dialogValsList.forEach((element: { channel: string, values: string[] }) => {
+    dialogValsList.forEach((element:any) => {
       let newChannels = partsDefList[element.channel].channels;
       newChannels.forEach((channel: any) => {
-        newChannelsDict[channel] = 
-          {
-            attribute: channel,
-            baselineValue: null,
-            values: element.values,
-            unit: null
-          }
+        let obj:any = {}
+        let keysList = element.displayValsList;
+        keysList.forEach((key:string) =>{
+          obj[key] = key;
+        })
+        newChannelsDict[channel] = obj;
       });
     });
    
@@ -289,29 +291,31 @@ export class BatchCreationComponent implements OnInit {
       if (result === undefined) {
         alert('Dialog Closed No Files Loaded')
       } else {
-        let returnedData = result.data;
-        let newValuesDict = await this.parseCloudParts(returnedData);
-        let newKeys = Object.keys(newValuesDict);
-
-        //add new values for parts
-        dialogVals.forEach((key:string) => {
-          this.batchMatrixCloud.forEach((row) => {
-            let index = +row[key];
-            newKeys.forEach((newKey) => {
-              row[newKey] = newValuesDict[newKey][index];
+        let updatedBatchMatrixCloud:any[] = [];
+                
+        // get orig keys List to add to new obj row excluding values in dialogVals
+        let origKeysList:string[] = Object.keys(this.batchMatrixCloud[0]);
+        dialogVals.forEach((item:string) => {
+          origKeysList.splice(origKeysList.indexOf(item), 1);
+        });
+        
+        // make new row and add orig keys and parts keys
+        this.batchMatrixCloud.forEach((row:any) => {
+          let newRow:any = {};
+          origKeysList.forEach((element:any) => {
+            newRow[element] = row[element];
+          });
+          dialogVals.forEach((origKey:string) => {
+            let origValue:string = row[origKey];
+            partsDefList[origKey].channels.forEach((newKey:string) => {
+              newRow[newKey] = result.data[newKey][origValue];
             });
           });
-        });
-
-        // delete part generic values
-        dialogVals.forEach((key:string) => {
-          this.batchMatrixCloud.forEach((row) => {
-            delete row[key];
-          });
+          updatedBatchMatrixCloud.push(newRow);
         });
         this.displayedColumns = [];
-        this.displayedColumns = Object.keys(this.batchMatrixCloud[0]);
-        this.batchMatrixCloud = cloneDeep(this.batchMatrixCloud);
+        this.displayedColumns = Object.keys(updatedBatchMatrixCloud[0]);
+        this.batchMatrixCloud = updatedBatchMatrixCloud;
       }
     });
   } 
@@ -342,6 +346,7 @@ export class BatchCreationComponent implements OnInit {
   public async processFunctionsCloud() {
     let updatedData:any[] = [];
     Object.values(this.cloudBatchIndexDict).forEach((item:any) => {
+      updatedData = [];
       if (this.functionInputFactors.includes(item)) {
         switch(item) {
           case 'JackscrewAdjustLR':
@@ -378,7 +383,8 @@ export class BatchCreationComponent implements OnInit {
           break;
         }
       }
-    })
+      
+    });
 }
 
   public jackscrewScale(values: any[]) {
@@ -421,7 +427,7 @@ export class BatchCreationComponent implements OnInit {
   }
 
   exportBatchMatrix(){
-    let excludedUnitConversions = ['SpringStopLF_Spline', 'SpringStopRF_Spline']
+    let excludedUnitConversions = ['SpringStopLF_Spline', 'SpringStopRF_Spline', 'SpringStopRR_Spline']
     if (this.batchType === 'desktop'){
       const options = { 
         fieldSeparator: ',',
@@ -442,7 +448,6 @@ export class BatchCreationComponent implements OnInit {
 
     if (this.batchType === 'cloud'){
       let updatedData:any[] = [];
-      
       let headers = Object.keys(this.batchMatrixCloud[0]);
       let headerObj:any = {'Run #': ' '}
       

@@ -2,12 +2,13 @@
 
 <div class="flex-column" *ngFor = 'let part of uniqueValueList, index as i'>{{part.channel}}
   <div class="flex-row">
-    <button *ngFor = 'let value of part.values, index as j' 
+    <button *ngFor = 'let value of part.displayValsList, index as j' 
       class='button' [ngStyle]="{'background-color':part.isLoaded[j] === true ? 'green' : 'red' }" 
       mat-raised-button
       onclick= "document.getElementById('browser2').click();"
-      (click) = "onclick(i, j);">{{part.values[j]}}
+      (click) = "onclick(i, j);">{{part.displayValsList[j]}}
         <input type="file"
+            name='test'
             id="browser2"
             style='display:none'
             accept=".csv"
