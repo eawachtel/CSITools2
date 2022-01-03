@@ -54,7 +54,7 @@ export const inputDisplayNames: string[] = [
     'SpringStopEnableRR',
     'SpringStopLF_Spline_Rate',
     'SpringStopRF_Spline_Rate',
-    'SpringStopRR_Spline',
+    'SpringStopRR',
     'SpringStopGapLF',
     'SpringStopGapRF',
     'SpringStopGapRR'

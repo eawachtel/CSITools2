@@ -329,18 +329,18 @@ export class BatchCreationComponent implements OnInit {
   }
 
   public async processFunctions() {
-      Object.keys(this.batchDict).forEach((batchKey:any) => {
-        if (this.functionInputFactors.includes(batchKey)) {
-          switch(batchKey) {
-            case 'JackscrewAdjustLR':
-              this.batchDict[batchKey]['values'] = this.jackscrewScale(this.batchDict[batchKey]['values']);
-              break;
-            case 'JackscrewAdjustRR':
-              this.batchDict[batchKey]['values'] = this.jackscrewScale(this.batchDict[batchKey]['values']);
-              break;
-          }
+    Object.keys(this.batchDict).forEach((batchKey:any) => {
+      if (this.functionInputFactors.includes(batchKey)) {
+        switch(batchKey) {
+          case 'JackscrewAdjustLR':
+            this.batchDict[batchKey]['values'] = this.jackscrewScale(this.batchDict[batchKey]['values']);
+            break;
+          case 'JackscrewAdjustRR':
+            this.batchDict[batchKey]['values'] = this.jackscrewScale(this.batchDict[batchKey]['values']);
+            break;
         }
-      })
+      }
+    })
   }
 
   public async processFunctionsCloud() {
@@ -383,7 +383,6 @@ export class BatchCreationComponent implements OnInit {
           break;
         }
       }
-      
     });
 }
 
@@ -393,7 +392,6 @@ export class BatchCreationComponent implements OnInit {
       let newNumber = ((number / 12) * -1).toFixed(3);
       newValues.push(newNumber);
     });
-
     return newValues
   }
 
@@ -498,7 +496,6 @@ export class BatchCreationComponent implements OnInit {
   }
 
   public radialClick(){
-
     setTimeout(() => {
       if (this.batchType === 'desktop'){
         this.displayedColumns= ['attribute', 'values'];
@@ -507,7 +504,6 @@ export class BatchCreationComponent implements OnInit {
       }
       this.resetCloudVariables();
     }, 100);
-
   }
 }
 

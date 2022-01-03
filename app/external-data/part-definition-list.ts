@@ -55,7 +55,9 @@ export const partsDefList: any = {
     },
     'SpringStopRR': {channels:
         [
-            'SpringStopRR_Spline'
+            // 'Pre_SpringStopRR_Spline',
+            'SpringStopRR_Spline',
+            'SpringRR_Rate'
         ]
     }
 }

@@ -2402,6 +2402,9 @@ export const inputDisplayNames: any = {
     'SpringStopRR_Spline':
     {'WorkflowName': 'SpringStopRR_Spline', 'DisplayName': 'SpringStopRR', 'Unit': 'lb/in', 'Scale': '0.00571015', 'Offset': ''}
     ,
+    'Pre_SpringStopRR_Spline':
+    {'WorkflowName': 'Pre_SpringStopRR_Spline', 'DisplayName': 'SpringStopRR', 'Unit': 'lb/in', 'Scale': '0.00571015', 'Offset': ''}
+    ,
     'SpringStopGapLF':
     {'WorkflowName': 'SpringStopGapLF', 'DisplayName': 'SpringStopGapLF', 'Unit': 'in', 'Scale': '39.3701', 'Offset': ''}
     ,

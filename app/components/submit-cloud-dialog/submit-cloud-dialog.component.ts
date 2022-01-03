@@ -96,6 +96,7 @@ export class SubmitCloudDialogComponent implements OnInit {
         this.newChannelsDict[displayChannel][displayValue] = value;
       }  
     });
+    console.log(this.newChannelsDict)
     this.setEnabled();
   }
 }
