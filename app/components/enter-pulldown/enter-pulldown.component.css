@@ -27,7 +27,7 @@
 
 .flex-row-fixed {
   display: flex;
-  justify-content: space-around;
+  justify-content: right;
 }
 
 .flex-column {

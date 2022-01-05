@@ -3,6 +3,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import * as regression from 'regression';
 
 import { NotificationService } from '../../services/notification.service'
+import { MatRadioChange } from '@angular/material/radio';
 
 interface IxyGraph {
   'x': number,
@@ -37,8 +38,8 @@ export class EnterPulldownComponent implements OnInit {
   lfLoadChannelName:string = '';
   rfShockChannelName:string = '';
   rfLoadChannelName:string = '';
-  lfTrimStart:number = 0;
-  rfTrimStart:number = 0;
+  lfTrimStart:number = .2;
+  rfTrimStart:number = .2;
   fileTypeSelect: string = 'single';
   pulldownDataPersist: {'LF Shock Travel': number, 'LF Wheel Load': number, 'RF Shock Travel': number, 'RF Wheel Load': number}[]= [];
   side:string|undefined = undefined;
@@ -134,6 +135,13 @@ export class EnterPulldownComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  radialChange(event:MatRadioChange){
+    this.pulldownDataPersist = [];
+    this.lfCurveSelect = 'none'
+    this.rfCurveSelect = 'none'
+    this.plotLFPulldownData([])
+    this.plotRFPulldownData([])
+  }
   public lfFileChangeListener(files:any){
     let file = files.target.files[0];
     if (file) {
@@ -254,8 +262,10 @@ export class EnterPulldownComponent implements OnInit {
 
     //Bottom Data Set
     this.lfBottomPersist = this.solveBottomCurve(this.lfFullPersist, lfXMax);
-    this.lfCurveSelect = 'full';
-    this.plotLFPulldownData(this.lfFullPersist);
+    
+    this.onTopCurveSelect('LF')
+    // this.lfCurveSelect = 'full';
+    // this.plotLFPulldownData(this.lfFullPersist);
   }
   
   public async parseRFFileString(data1:any[]){
@@ -321,8 +331,9 @@ export class EnterPulldownComponent implements OnInit {
 
     //Bottom Data Set
     this.rfBottomPersist = this.solveBottomCurve(this.rfFullPersist, rfXMax);
-    this.rfCurveSelect = 'full';
-    this.plotRFPulldownData(this.rfFullPersist);
+    this.onTopCurveSelect('RF')
+    // this.rfCurveSelect = 'full';
+    // this.plotRFPulldownData(this.rfFullPersist);
   }
 
   public async defineChannelNames(usedChannelsDict:any){
@@ -498,10 +509,11 @@ export class EnterPulldownComponent implements OnInit {
       // this.rfBottomMod = this.rfBottomPersist;
     }
 
-    this.lfCurveSelect = 'full';
-    this.rfCurveSelect = 'full';
-    this.plotLFPulldownData(this.lfFullPersist);
-    this.plotRFPulldownData(this.rfFullPersist);
+    this.onTopCurveSelect('LF')
+    this.onTopCurveSelect('RF')
+
+    // this.plotLFPulldownData(this.lfFullPersist);
+    // this.plotRFPulldownData(this.rfFullPersist);
   }
 
   public onOffset(event:any, side:string){
@@ -684,7 +696,7 @@ export class EnterPulldownComponent implements OnInit {
         }
       ]
     }
-    if (this.lfCurveSelect !== 'full'){
+    if (this.lfCurveSelect === 'top' || this.lfCurveSelect === 'bottom' || this.lfCurveSelect === 'copied'){
       let lfx:number[] = [];
       let lfy:number[] = [];
       plotData.forEach((item:IxyGraph) => {
@@ -731,6 +743,25 @@ export class EnterPulldownComponent implements OnInit {
           line: {
             color: altColor,
             width: 3
+          }
+        }
+      ]
+    }
+    if (this.lfCurveSelect === 'none'){
+      dataList = [
+        {
+          x: [],
+          y: [],
+          type: 'scattergl',
+          name: 'Pulldown Data',
+          mode: 'markers',
+          marker: {
+            color: 'blue',
+            size: 3
+          },
+          line: {
+            color: 'blue',
+            width: 2
           }
         }
       ]
@@ -971,7 +1002,7 @@ export class EnterPulldownComponent implements OnInit {
         }
       }]
     }
-    if (this.rfCurveSelect !== 'full'){
+    if (this.rfCurveSelect === 'top' || this.rfCurveSelect === 'bottom' || this.rfCurveSelect === 'copied'){
       let rfx:number[] = [];
       let rfy:number[] = [];
       plotData.forEach((item:IxyGraph) => {
@@ -1018,6 +1049,25 @@ export class EnterPulldownComponent implements OnInit {
           line: {
             color: altColor,
             width: 3
+          }
+        }
+      ]
+    }
+    if (this.rfCurveSelect === 'none'){
+      dataList = [
+        {
+          x: [],
+          y: [],
+          type: 'scattergl',
+          name: 'Pulldown Data',
+          mode: 'markers',
+          marker: {
+            color: 'blue',
+            size: 3
+          },
+          line: {
+            color: 'blue',
+            width: 2
           }
         }
       ]
