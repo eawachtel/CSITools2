@@ -16,6 +16,9 @@
                     id='browser'>Select Pulldown .txt File
                 </button>
             </span>
+            <div style='margin-top: 1vh;'>
+                <span>  File Loaded: {{fileSingleTitleLF}}</span>
+            </div>
         </div>
     </div>
 
@@ -32,6 +35,9 @@
                     onclick= "document.getElementById('browser2').click()"
                         id='browser2'>Select LF Pulldown .txt File
                     </button>
+                    <div style='margin-top: 1vh;'>
+                        <span>  File Loaded: {{fileSingleTitleLF}}</span>
+                    </div>
             
             </div>
             <div *ngIf='lfFullPersist.length > 0 || rfFullPersist.length > 0' class='flex-row-fixed'>
@@ -76,6 +82,10 @@
                     onclick= "document.getElementById('browser3').click()"
                         id='browser3'>Select RF Pulldown .txt File
                     </button>
+                    <div style='margin-top: 1vh;'>
+                        <span>  File Loaded: {{fileSingleTitleRF}}</span>
+                    </div>
+                    
             </div>
             <div *ngIf='lfFullPersist.length > 0 || rfFullPersist.length > 0' class='flex-row-fixed'>
                 <!-- <button style='margin-right: 1vw;' mat-raised-button color="primary" 

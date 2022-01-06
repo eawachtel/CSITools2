@@ -34,6 +34,9 @@ interface IplotlyGraph {
 })
 export class EnterPulldownComponent implements OnInit {
 
+  fileSingleTitleLF:string = '';
+  fileSingleTitleRF:string = '';
+
   lfShockChannelName:string = '';
   lfLoadChannelName:string = '';
   rfShockChannelName:string = '';
@@ -139,13 +142,17 @@ export class EnterPulldownComponent implements OnInit {
     this.pulldownDataPersist = [];
     this.lfCurveSelect = 'none'
     this.rfCurveSelect = 'none'
+    this.fileSingleTitleLF = '';
+    this.fileSingleTitleRF = '';
     this.plotLFPulldownData([])
     this.plotRFPulldownData([])
   }
+
   public lfFileChangeListener(files:any){
     let file = files.target.files[0];
     if (file) {
       let data1: string[] = [];
+      let fileSingleTitleLF:string = '';
       const reader= new FileReader
       reader.readAsText(file)
       reader.onload = function () {
@@ -155,9 +162,14 @@ export class EnterPulldownComponent implements OnInit {
             for (let i = 10; i < lines.length; i++){
               data1.push(lines[i])
             }
+            // get file name for title
+            let titlestring = lines[3];
+            let titleStart = titlestring.substring(0, lines[3].length - 1);
+            let titleEnd = titleStart.substring(8);
+            fileSingleTitleLF = titleEnd;
         }
       }
-      reader.onloadend = () => this.parseLFFileString(data1);
+      reader.onloadend = () => this.parseLFFileString(data1, fileSingleTitleLF);
     }
   }
 
@@ -165,6 +177,7 @@ export class EnterPulldownComponent implements OnInit {
     let file = files.target.files[0];
     if (file) {
       let data1: string[] = [];
+      let fileSingleTitleRF:string = '';
       const reader= new FileReader
       reader.readAsText(file)
       reader.onload = function () {
@@ -174,9 +187,14 @@ export class EnterPulldownComponent implements OnInit {
             for (let i = 10; i < lines.length; i++){
               data1.push(lines[i])
             }
+            // get file name for title
+            let titlestring = lines[3];
+            let titleStart = titlestring.substring(0, lines[3].length - 1);
+            let titleEnd = titleStart.substring(8);
+            fileSingleTitleRF = titleEnd;
         }
       }
-      reader.onloadend = () => this.parseRFFileString(data1);
+      reader.onloadend = () => this.parseRFFileString(data1, fileSingleTitleRF);
     }
   }
 
@@ -184,6 +202,7 @@ export class EnterPulldownComponent implements OnInit {
     let file = files.target.files[0];
     if (file) {
       let data1: string[] = [];
+      let fileSingleTitle:string = '';
       const reader= new FileReader
       reader.readAsText(file)
       reader.onload = function () {
@@ -193,14 +212,21 @@ export class EnterPulldownComponent implements OnInit {
             for (let i = 10; i < lines.length; i++){
               data1.push(lines[i])
             }
+            // get file name for title
+            let titlestring = lines[3];
+            let titleStart = titlestring.substring(0, lines[3].length - 1);
+            let titleEnd = titleStart.substring(8);
+            fileSingleTitle = titleEnd;
         }
       }
-      reader.onloadend = () => this.parseSingleFileString(data1);
+      reader.onloadend = () => this.parseSingleFileString(data1, fileSingleTitle);
     }
     
   }
 
-  public async parseLFFileString(data1:any[]){
+  public async parseLFFileString(data1:any[], fileSingleTitleLF:string){
+    //create titles for LF graph
+    this.fileSingleTitleLF = fileSingleTitleLF;
     //Takes read text and get list of keys or headers from pulldown file
     let keyList = data1[0];
     let keyList2 = keyList.substring(0, keyList.length - 1);
@@ -268,7 +294,9 @@ export class EnterPulldownComponent implements OnInit {
     // this.plotLFPulldownData(this.lfFullPersist);
   }
   
-  public async parseRFFileString(data1:any[]){
+  public async parseRFFileString(data1:any[], fileSingleTitleRF:string){
+    //create titles for RF graph
+    this.fileSingleTitleRF = fileSingleTitleRF;
     //Takes read text and get list of keys or headers from pulldown file
     let keyList = data1[0];
     let keyList2 = keyList.substring(0, keyList.length - 1);
@@ -355,7 +383,10 @@ export class EnterPulldownComponent implements OnInit {
     return 'success'
   }
 
-  public async parseSingleFileString(data1:any[]){
+  public async parseSingleFileString(data1:any[], fileSingleTitle:string){
+    //create titles for graphs
+    this.fileSingleTitleLF = fileSingleTitle;
+    this.fileSingleTitleRF = fileSingleTitle;
     //Takes read text and get list of keys or headers from pulldown file
     let keyList = data1[0];
     let keyList2 = keyList.substring(0, keyList.length - 1);
@@ -772,7 +803,7 @@ export class EnterPulldownComponent implements OnInit {
       data: dataList,
       layout: 
         {autosize: true, showlegend: true, legend: {x: .28, y: -.2, "orientation": "h"}, 
-        title: 'LF Load vs LF Shock',
+        title: 'LF Load vs LF Shock Travel',
         xaxis: {title: 'LF Shock Travel (in)', automargin: true, zeroline: false, showline: true, range: [lfXMin, lfXMax]},
         yaxis: {title: 'LF Load (lbf)', zeroline: false, showline: true},
         margin: {
@@ -1077,7 +1108,7 @@ export class EnterPulldownComponent implements OnInit {
       data: dataList,
       layout: 
         {autosize: true, showlegend: true, legend: {x: .28, y: -.2, "orientation": "h"},
-        title: 'RF Load vs RF Shock',
+        title: 'RF Load vs RF Shock Travel',
         xaxis: {title: 'RF Shock Travel (in)', zeroline: false, showline: true, range: [rfXMin, rfXMax]},
         yaxis: {title: 'RF Load (lbf)', zeroline: false, showline: true},
         margin: {
