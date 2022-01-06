@@ -10,6 +10,7 @@ import { NotificationService } from '../../services/notification.service'
   styleUrls: ['./bump-spring-builder.component.css']
 })
 export class BumpSpringBuilderComponent implements OnInit {
+  loadedFileName:string = ''
   durationInSeconds = 2;
   displayedData:{x: number, y: number}[] = [];
   graph = {
@@ -67,6 +68,7 @@ export class BumpSpringBuilderComponent implements OnInit {
   }
 
   public async parseCSVFiletoXY(data:any[]){
+    this.loadedFileName = data[1][1];
     let indexedData:any[]=[];
     let indexStart:number = 0;
     let forceZero:number = 0;
