@@ -203,23 +203,33 @@ export class SplineCreatorComponent implements OnInit {
 
   public extendRideRateOverride(data:IxyGraph[]){
     let lastX:number = data[data.length - 1].x;
-    const regression = require('regression');
-    let fitData:number[][] = [];
-    data.forEach((item) => {
-      if (item.x >= lastX - 1){
-        fitData.push([item.x, item.y]);
-      }
-    });
+    let lastY:number = data[data.length - 1].y;
 
-    const result = regression.polynomial(fitData, { order: 2 });
-    let count:number = lastX + .05;
-    for (let i = 1 ; i < data.length - 1 ; i++) {
-      if (count <= lastX + .5) {
-        let predictObj:number[] = result.predict(count);
-        data.push({x: predictObj[0], y:predictObj[1]});
-        count = count + .05;
-      }
+    //Extend fit with 0 rated
+    let extCount:number = lastX + .1;
+    for (let i = 1 ; i < 5.1 ; i++) {
+      data.push({x: extCount, y: lastY})
+      extCount = extCount + .1
     }
+      
+    //Extend fit for .5" past the last point
+    // const regression = require('regression');
+    // let fitData:number[][] = [];
+    // data.forEach((item) => {
+    //   if (item.x >= lastX - 1){
+    //     fitData.push([item.x, item.y]);
+    //   }
+    // });
+
+    // const result = regression.polynomial(fitData, { order: 2 });
+    // let count:number = lastX + .05;
+    // for (let i = 1 ; i < data.length - 1 ; i++) {
+    //   if (count <= lastX + .5) {
+    //     let predictObj:number[] = result.predict(count);
+    //     data.push({x: predictObj[0], y:predictObj[1]});
+    //     count = count + .05;
+    //   }
+    // }
 
     return data
   }
