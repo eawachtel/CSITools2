@@ -10,6 +10,7 @@ import { NotificationService } from '../../services/notification.service'
   styleUrls: ['./shock-builder.component.css']
 })
 export class ShockBuilderComponent implements OnInit {
+  loadedFileName:string = '';
   displayedData:any[] = [];
   shockOptionsList:string[] = ['CC/RC', 'CO/RC', 'CA/RA'];
   colorList:string[] = ['blue', 'red', '#bcbd22'];
@@ -33,7 +34,7 @@ export class ShockBuilderComponent implements OnInit {
     layout: 
       {autosize: true, showlegend: true, legend: {x: .2, y: -.2, "orientation": "h"}, 
       title: 'Travel vs Load',
-      xaxis: {title: 'Travel (in)', automargin: true, zeroline: false, showline: true, range: [0, 9]},
+      xaxis: {title: 'Travel (in)', automargin: true, zeroline: false, showline: true, range: [0, 9], dtick: 1},
       yaxis: {title: 'Load (lbf)', zeroline: false, showline: true},
       margin: {
         l: 70,
@@ -63,6 +64,7 @@ export class ShockBuilderComponent implements OnInit {
 
   public  async fileChangeListener(files: any) {
     let file = files.target.files[0];
+    this.loadedFileName = file.name;
     if (file) {
       Papa.parse(file, {
         header: false,
@@ -111,23 +113,27 @@ export class ShockBuilderComponent implements OnInit {
       this.shockOptionsCopyDict[item] = [];
     });
 
-    // add compression side of curves from 0 to 9 in/sec
-    for ( let vel = 9 ; vel >= 0 ; vel-- ) {
-      this.shockOptionsList.forEach((option:string) => {
-        let compression:string = option.substring(0, 2)
-        let force = dataDict[compression][vel]
-        shockOptionsDict[option].push({vel: vel, force: force});
-        this.shockOptionsCopyDict[option].push({vel: vel, force: force});
-      })
-    }
-
     // add rebound side of curves from 1 to 9 in/sec
-    for ( let vel = 1 ; vel <= 9 ; vel++ ) {
+    for ( let vel = 11 ; vel > 0 ; vel--) {
       this.shockOptionsList.forEach((option:string) => {
         let rebound:string = option.substr(-2)
-        let force:number = dataDict[rebound][vel]
-        shockOptionsDict[option].push({vel: vel, force: force});
-        this.shockOptionsCopyDict[option].push({vel: vel * -1, force: force});
+        if (dataDict[rebound][vel] !== undefined){
+          let force:number = dataDict[rebound][vel]
+          shockOptionsDict[option].push({vel: vel, force: force});
+          this.shockOptionsCopyDict[option].push({vel: vel * -1, force: force});
+        }
+      });
+    }
+
+    // add compression side of curves from 0 to 9 in/sec
+    for ( let vel = 0 ; vel < 11; vel++ ) {
+      this.shockOptionsList.forEach((option:string) => {
+        let compression:string = option.substring(0, 2)
+        if (dataDict[compression][vel] !== undefined){
+          let force = dataDict[compression][vel]
+          shockOptionsDict[option].push({vel: vel, force: force});
+          this.shockOptionsCopyDict[option].push({vel: vel, force: force});
+        }
       });
     }
     
@@ -136,6 +142,7 @@ export class ShockBuilderComponent implements OnInit {
 
   public plotData(returnedData:any){
     let plotDataList: any = [];
+    let graphXMax:number = 0;
     let data = returnedData;
     for (let i = 0; i < this.shockOptionsList.length; i++){
       let shockType = data[this.shockOptionsList[i]];
@@ -145,12 +152,13 @@ export class ShockBuilderComponent implements OnInit {
         xArray.push(item.vel);
         yArray.push(item.force);
       });
+      let localXMax:number = Math.max(...xArray);
+      if (localXMax > graphXMax){graphXMax = localXMax};
       let plotObj:any = {
         x: xArray,
         y: yArray,
-        type: 'scattergl',
         name: this.shockOptionsList[i],
-        mode: 'lines + markers',
+        mode: 'lines+markers',
         marker: {
           color: this.colorList[i],
           size: 6
@@ -162,13 +170,13 @@ export class ShockBuilderComponent implements OnInit {
       }
       plotDataList.push(plotObj)
     }; 
-  
+    
     this.graph = {
       data: plotDataList,
       layout: 
         {autosize: true, showlegend: true, legend: {x: .43, y: -.2, "orientation": "h"},
         title: 'Force vs Velocity',
-        xaxis: {title: 'Velocity (in / sec)', automargin: true, zeroline: false, showline: true, range:[0, 9]},
+        xaxis: {title: 'Velocity (in / sec)', automargin: true, zeroline: false, showline: true, range:[0, graphXMax + .1], dtick: 1},
         yaxis: {title: 'Force (lbf)', zeroline: false, showline: true},
         margin: {
           l: 70,

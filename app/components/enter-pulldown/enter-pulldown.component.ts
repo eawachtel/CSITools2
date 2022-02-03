@@ -41,8 +41,8 @@ export class EnterPulldownComponent implements OnInit {
   lfLoadChannelName:string = '';
   rfShockChannelName:string = '';
   rfLoadChannelName:string = '';
-  lfTrimStart:number = .2;
-  rfTrimStart:number = .2;
+  lfTrimStart:number = 0;
+  rfTrimStart:number = 0;
   fileTypeSelect: string = 'single';
   pulldownDataPersist: {'LF Shock Travel': number, 'LF Wheel Load': number, 'RF Shock Travel': number, 'RF Wheel Load': number}[]= [];
   side:string|undefined = undefined;
@@ -285,10 +285,8 @@ export class EnterPulldownComponent implements OnInit {
     //Top Data Set
     this.lfTopPersist = this.solveTopCurve(this.lfFullPersist, lfXMax);
     // this.lfTopMod = this.lfTopPersist;
-
     //Bottom Data Set
     this.lfBottomPersist = this.solveBottomCurve(this.lfFullPersist, lfXMax);
-    
     this.onTopCurveSelect('LF')
     // this.lfCurveSelect = 'full';
     // this.plotLFPulldownData(this.lfFullPersist);
@@ -551,6 +549,7 @@ export class EnterPulldownComponent implements OnInit {
     let offset = +event.target.value;
     if (offset <= 0){return}
     if (side === 'LF') {
+      this.lfCurveSelect = 'top'
       this.lfOffsetValue = offset;
       switch(this.lfCurveSelect){
         case 'top':
@@ -565,6 +564,7 @@ export class EnterPulldownComponent implements OnInit {
       }
     }
     if (side === 'RF') {
+      this.rfCurveSelect = 'top'
       this.rfOffsetValue = offset;
       switch(this.rfCurveSelect){
         case 'top':

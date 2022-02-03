@@ -25,7 +25,8 @@ export interface IShockGraph{
             automargin: boolean,
             zeroline: boolean,
             showline: boolean, 
-            range: number[]
+            range: number[],
+            dtick: number
         },
         yaxis: {
             title: string,
