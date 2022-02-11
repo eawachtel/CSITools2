@@ -22,6 +22,10 @@ export class AppComponent {
     this.selectedApp = 'Bump Spring Builder';
   }
 
+  setBumpSpringViewerTool(){
+    this.selectedApp = 'Bump Spring Viewer';
+  }
+
   setShockTool(){
     this.selectedApp = 'Shock Builder'
   }

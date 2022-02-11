@@ -23,9 +23,10 @@ import { BatchCreationComponent } from './components/batch-creation/batch-creati
 import { SubmitDialogModule } from '../app/components/submit-dialog/submit-dialog.module';
 import { SpringSplineBuilderModule } from './components/spring-spline-builder/spring-spline-builder.module';
 import { BumpSpringBuilderModule } from './components/bump-spring-builder/bump-spring-builder.module';
+import { BumpSpringViewerModule } from './components/bump-spring-viewer/bump-spring-viewer.module';
 import { ShockBuilderModule } from './components/shock-builder/shock-builder.module';
 import { NotificationComponent } from './components/notification/notification.component';
-import { SubmitCloudDialogModule } from './components/submit-cloud-dialog/submit-cloud-dialog.module'
+import { SubmitCloudDialogModule } from './components/submit-cloud-dialog/submit-cloud-dialog.module';
 
 
 @NgModule({
@@ -34,7 +35,7 @@ import { SubmitCloudDialogModule } from './components/submit-cloud-dialog/submit
     DOEFactorMatrixComponent,
     BatchCreationComponent,
     NotificationComponent,
-    
+        
   ],
   imports: [
     BrowserModule,
@@ -59,6 +60,7 @@ import { SubmitCloudDialogModule } from './components/submit-cloud-dialog/submit
     SubmitCloudDialogModule,
     SpringSplineBuilderModule,
     BumpSpringBuilderModule,
+    BumpSpringViewerModule,
     ShockBuilderModule,
     ClipboardModule
   ],
