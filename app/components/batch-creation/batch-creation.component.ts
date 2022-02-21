@@ -37,7 +37,7 @@ export class BatchCreationComponent implements OnInit {
 
   functionInputFactors: any[] = ['JackscrewAdjustLR', 'JackscrewAdjustRR', 'SpringStopLF_Spline', 'SpringStopRF_Spline'];
   dialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA']
-  cloudDialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA', 'SpringStopRR']
+  cloudDialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA', 'SpringStopRR', 'SpringStopGapLF', 'SpringStopGapRF']
   displayedColumns: string[] = ['attribute', 'values'];
   
 
@@ -287,7 +287,8 @@ export class BatchCreationComponent implements OnInit {
         }
       });
 
-    dialogRef.afterClosed().subscribe( async result => {
+    dialogRef.afterClosed().subscribe( async result => { 
+      let excludedOrigKeys:string[] = ['SpringStopGapLF','SpringStopGapRF']
       if (result === undefined) {
         alert('Dialog Closed No Files Loaded')
       } else {
@@ -296,7 +297,10 @@ export class BatchCreationComponent implements OnInit {
         // get orig keys List to add to new obj row excluding values in dialogVals
         let origKeysList:string[] = Object.keys(this.batchMatrixCloud[0]);
         dialogVals.forEach((item:string) => {
-          origKeysList.splice(origKeysList.indexOf(item), 1);
+          if (!excludedOrigKeys.includes(item)) {
+            console.log(item);
+            origKeysList.splice(origKeysList.indexOf(item), 1);
+          }
         });
         
         // make new row and add orig keys and parts keys
@@ -425,7 +429,7 @@ export class BatchCreationComponent implements OnInit {
   }
 
   exportBatchMatrix(){
-    let excludedUnitConversions = ['SpringStopLF_Spline', 'SpringStopRF_Spline', 'SpringStopRR_Spline']
+    let excludedUnitConversions = ['SpringStopLF_Spline', 'SpringStopRF_Spline', 'SpringStopRR_Spline', 'InstalledSpringLF', 'InstalledSpringRF']
     if (this.batchType === 'desktop'){
       const options = { 
         fieldSeparator: ',',

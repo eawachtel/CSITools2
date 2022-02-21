@@ -13,10 +13,10 @@
         (click) = 'setBumpSpringTool();'>
         <span>Bump Spring Builder</span>
       </button>
-      <button mat-menu-item
+      <!-- <button mat-menu-item
         (click) = 'setBumpSpringViewerTool();'>
         <span>Bump Spring Viewer</span>
-      </button>
+      </button> -->
       <button mat-menu-item
         (click) = 'setShockTool();'>
         <span>Shock Builder</span>
@@ -31,8 +31,8 @@
     </mat-menu>
     <span style='margin-left: 1vw;'>CSI Tools</span>
     <span class="toolbar-spacer"></span>
-    <span *ngIf="selectedApp === 'Bump Spring Builder'" style='right: 10vw; ;'>Bump Spring Builder v1.5.1</span>
-    <span *ngIf="selectedApp === 'Bump Spring Viewer'" style='right: 10vw; ;'>Bump Spring Viewer v1.1.1</span>
+    <span *ngIf="selectedApp === 'Bump Spring Builder'" style='right: 10vw; ;'>Bump Spring Builder v1.6.1</span>
+    <!-- <span *ngIf="selectedApp === 'Bump Spring Viewer'" style='right: 10vw; ;'>Bump Spring Viewer v1.1.1</span> -->
     <span *ngIf="selectedApp === 'Spring Spline Builder'" style='right: 10vw; ;'>Spring Spline Builder v1.2.1</span>
     <span *ngIf="selectedApp === 'Shock Builder'" style='right: 10vw; ;'>Shock Builder  v1.3.1</span>
     <span *ngIf="selectedApp === 'DOE'" style='right: 10vw; ;'>DOE Tool</span>

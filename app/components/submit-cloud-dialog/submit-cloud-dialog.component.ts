@@ -81,18 +81,19 @@ export class SubmitCloudDialogComponent implements OnInit {
   }
 
   addPartData(csvDict:any, j:number, i:number) {
-    let test20 = this.newChannelsDict
     let origChannel = this.uniqueValueList[i].channel;
     let displayValue = this.uniqueValueList[i].displayValsList[j];
     let channelList = partsDefList[origChannel].channels;
+    console.log(channelList)
     channelList.forEach((displayChannel:any) => { // assign a dict with the key as displayed values (DE Values) and part values
+      console.log(displayChannel)
       let paramMapObj = inputDisplayNames[displayChannel];
       let value = csvDict[paramMapObj.WorkflowName];
-      if (displayChannel !== 'SpringStopRR_Spline'){
+      if (displayChannel !== 'SpringStopRR_Spline' || displayChannel !== 'InstalledSpringLF' || displayChannel !== 'InstalledSpringRF'){
         let scaleValue = (+value * +paramMapObj.Scale).toFixed(3).toString();
         this.newChannelsDict[displayChannel][displayValue] = scaleValue;
       }
-      if (displayChannel === 'SpringStopRR_Spline'){
+      if (displayChannel === 'SpringStopRR_Spline' || displayChannel === 'InstalledSpringLF' || displayChannel === 'InstalledSpringRF'){
         this.newChannelsDict[displayChannel][displayValue] = value;
       }  
     });

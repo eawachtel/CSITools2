@@ -10,6 +10,7 @@ import { NotificationService } from '../../services/notification.service'
   styleUrls: ['./bump-spring-builder.component.css']
 })
 export class BumpSpringBuilderComponent implements OnInit {
+  minLoadValue:number = 10;
   loadedFileName:string = ''
   durationInSeconds = 2;
   displayedData:{x: number, y: number}[] = [];
@@ -53,7 +54,7 @@ export class BumpSpringBuilderComponent implements OnInit {
 
   public  async fileChangeListener(files: any) {
     let file = files.target.files[0];
-    if (file) {
+    if (file && this.minLoadValue !== null) {
       Papa.parse(file, {
         header: false,
         skipEmptyLines: true,
@@ -62,8 +63,10 @@ export class BumpSpringBuilderComponent implements OnInit {
           let plot = this.plotData();
         }
           });
-    } else {
+    } else if(!file) {
       alert('Problem loading CSV file');
+    } else if(this.minLoadValue === null){
+      alert('Enter a Minimum Load Value.  Suggested default is 10 lbs');
     }
   }
 
@@ -71,21 +74,30 @@ export class BumpSpringBuilderComponent implements OnInit {
     this.loadedFileName = data[1][1];
     let indexedData:any[]=[];
     let indexStart:number = 0;
-    let forceZero:number = 0;
-    data.forEach((item:any, index:number) => {
+    let zeroIndex:number = 0;
+    let zeroLoad:number = 0;
+    let zeroTravel:number = 0;
+    data.forEach((item:any, index:number) => { //data iteration skips the empty rows in .csv between Motec header and first data row
       if (item[0] === 'PR_Disp' && item[1] === 'PR_Force'){indexStart = index}
     });
-    forceZero = +data[indexStart + 2][1];
-    indexedData.push({ x: +data[indexStart + 2][0], y: +data[indexStart + 2][1] - forceZero }) // push first value as x:0 y:0
-    let maxX = 0;
-    for (let i = indexStart + 3; i <= data.length - 1; i++){
-      let test1 = +data[i][0]
-      let test2 = +data[i - 1][0]
-      if (+data[i][0] > +data[i - 1][0]){
-        indexedData.push({x: +data[i][0], y: +data[i][1] - forceZero })
+    for (let i=indexStart; i<= data.length; i++){
+      if (data[i][1] >= this.minLoadValue){
+        zeroIndex = i;
+        zeroLoad = +data[i][1];
+        zeroTravel = +data[i][0];
+        break
       }
-    
     }
+
+    indexedData.push({x: zeroTravel - zeroTravel, y: zeroLoad - zeroLoad})
+    for (let i = zeroIndex + 1; i <= data.length - 1; i++){
+      let x = +data[i][0];
+      let y = +data[i][1];
+      if (+data[i][0] > +data[i - 1][0]){
+        indexedData.push({x: data[i][0] - zeroTravel, y: data[i][1] - zeroLoad})
+      }
+    }
+    
     return indexedData
   }
 

@@ -2402,6 +2402,12 @@ export const inputDisplayNames: any = {
     'SpringStopRR_Spline':
     {'WorkflowName': 'SpringStopRR_Spline', 'DisplayName': 'SpringStopRR', 'Unit': 'lb/in', 'Scale': '0.00571015', 'Offset': ''}
     ,
+    'InstalledSpringLF':
+    {'WorkflowName': 'InstalledSpringLF', 'DisplayName': 'InstalledSpringLF', 'Unit': 'in', 'Scale': '39.3701', 'Offset': ''}
+    ,
+    'InstalledSpringRF':
+    {'WorkflowName': 'InstalledSpringRF', 'DisplayName': 'InstalledSpringRF', 'Unit': 'in', 'Scale': '39.3701', 'Offset': ''}
+    ,
     'Pre_SpringStopRR_Spline':
     {'WorkflowName': 'Pre_SpringStopRR_Spline', 'DisplayName': 'SpringStopRR', 'Unit': 'lb/in', 'Scale': '0.00571015', 'Offset': ''}
     ,
