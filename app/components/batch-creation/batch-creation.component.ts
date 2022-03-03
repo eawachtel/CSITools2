@@ -37,7 +37,19 @@ export class BatchCreationComponent implements OnInit {
 
   functionInputFactors: any[] = ['JackscrewAdjustLR', 'JackscrewAdjustRR', 'SpringStopLF_Spline', 'SpringStopRF_Spline'];
   dialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA']
-  cloudDialogInputFactors: string[] = ['LFFARBArm', 'RFFARBArm', 'LFUCASlugs', 'RFUCASlugs', 'LFUCA', 'RFUCA', 'SpringStopRR', 'SpringStopGapLF', 'SpringStopGapRF']
+  cloudDialogInputFactors: string[] = 
+  [
+    'LFFARBArm',
+    'RFFARBArm',
+    'LFUCASlugs',
+    'RFUCASlugs',
+    'LFUCA',
+    'RFUCA',
+    'SpringStopRR',
+    'SpringStopGapLF',
+    'SpringStopGapRF',
+    'CrossUnhookedPer'
+    ]
   displayedColumns: string[] = ['attribute', 'values'];
   
 

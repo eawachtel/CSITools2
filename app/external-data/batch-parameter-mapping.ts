@@ -1070,10 +1070,10 @@ export const inputDisplayNames: any = {
     'Compliance_UCARFy':
     {'WorkflowName': 'UCACompRFFy', 'DisplayName': 'Compliance_UCARFy', 'Unit': 'ft/lb', 'Scale': '14.5939', 'Offset': ''}
     ,
-    'CrossHookedPer':
+    'CrossHookedDec':
     {'WorkflowName': 'CrossHookedDec', 'DisplayName': 'CrossHookedPer', 'Unit': '%', 'Scale': '100', 'Offset': ''}
     ,
-    'CrossUnhookedPer':
+    'CrossUnhookedDec':
     {'WorkflowName': 'CrossUnhookedDec', 'DisplayName': 'CrossUnhookedPer', 'Unit': '%', 'Scale': '100', 'Offset': ''}
     ,
     'DamperLF_ParallelStiffness':

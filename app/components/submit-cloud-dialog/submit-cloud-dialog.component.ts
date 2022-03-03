@@ -12,6 +12,7 @@ import {inputDisplayNames} from '../../external-data/batch-parameter-mapping'
 })
 export class SubmitCloudDialogComponent implements OnInit {
 
+  swaybarPreload:number = 0;
   uniqueValueList: any;
   newChannelsDict:any = [];
   i:number = 0;
@@ -64,6 +65,21 @@ export class SubmitCloudDialogComponent implements OnInit {
     }
   }
 
+  setPreloadValue(i:number){
+    this.i = i;
+    this.uniqueValueList[this.i].isLoaded.forEach((value:any, index:number) => {
+      this.uniqueValueList[this.i].isLoaded[index] = true;
+    });
+    Object.keys(this.newChannelsDict['CrossHookedDec']).forEach(key => {
+      this.newChannelsDict['CrossHookedDec'][key] = +this.newChannelsDict['CrossHookedDec'][key] + this.swaybarPreload;
+    });
+    Object.keys(this.newChannelsDict['CrossUnhookedDec']).forEach(key => {
+      this.newChannelsDict['CrossUnhookedDec'][key] = +this.newChannelsDict['CrossUnhookedDec'][key];
+    });
+    this.setEnabled();
+    
+  }
+
   setEnabled(){
     let enabledList: any[] = [];
     this.uniqueValueList.forEach((element:any) => {
@@ -84,9 +100,7 @@ export class SubmitCloudDialogComponent implements OnInit {
     let origChannel = this.uniqueValueList[i].channel;
     let displayValue = this.uniqueValueList[i].displayValsList[j];
     let channelList = partsDefList[origChannel].channels;
-    console.log(channelList)
     channelList.forEach((displayChannel:any) => { // assign a dict with the key as displayed values (DE Values) and part values
-      console.log(displayChannel)
       let paramMapObj = inputDisplayNames[displayChannel];
       let value = csvDict[paramMapObj.WorkflowName];
       if (displayChannel !== 'SpringStopRR_Spline' || displayChannel !== 'InstalledSpringLF' || displayChannel !== 'InstalledSpringRF'){
@@ -95,9 +109,8 @@ export class SubmitCloudDialogComponent implements OnInit {
       }
       if (displayChannel === 'SpringStopRR_Spline' || displayChannel === 'InstalledSpringLF' || displayChannel === 'InstalledSpringRF'){
         this.newChannelsDict[displayChannel][displayValue] = value;
-      }  
+      }
     });
-    console.log(this.newChannelsDict)
     this.setEnabled();
   }
 }

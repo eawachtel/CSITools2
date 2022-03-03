@@ -70,5 +70,11 @@ export const partsDefList: any = {
             'InstalledSpringRF',
         ]
     },
+    'CrossUnhookedPer': {channels:
+        [
+            'CrossUnhookedDec',
+            'CrossHookedDec'
+        ]
+    }
     
 }
