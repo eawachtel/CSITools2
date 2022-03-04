@@ -12,6 +12,7 @@ import {inputDisplayNames} from '../../external-data/batch-parameter-mapping'
 })
 export class SubmitCloudDialogComponent implements OnInit {
 
+  totalWeight:number = 0;
   swaybarPreload:number = 0;
   uniqueValueList: any;
   newChannelsDict:any = [];
@@ -63,6 +64,20 @@ export class SubmitCloudDialogComponent implements OnInit {
     } else {
       alert('Problem loading CSV file');
     }
+  }
+
+  setTotalWeightValue(i:number){
+    this.i = i;
+    this.uniqueValueList[this.i].isLoaded.forEach((value:any, index:number) => {
+      this.uniqueValueList[this.i].isLoaded[index] = true;
+    });
+    Object.keys(this.newChannelsDict['NoseWeight']).forEach(key => {
+      let noseNumber:number = +key * .01 * this.totalWeight;
+      let unitsConvertNoseNumber = noseNumber / 2.2045;
+      this.newChannelsDict['NoseWeight'][key] =unitsConvertNoseNumber.toFixed(2);
+    });
+    console.log(this.newChannelsDict)
+    this.setEnabled();
   }
 
   setPreloadValue(i:number){

@@ -75,6 +75,11 @@ export const partsDefList: any = {
             'CrossUnhookedDec',
             'CrossHookedDec'
         ]
+    },
+    'NoseWeight': {channels:
+        [
+            'NoseWeight'
+        ]
     }
     
 }

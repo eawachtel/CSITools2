@@ -48,7 +48,8 @@ export class BatchCreationComponent implements OnInit {
     'SpringStopRR',
     'SpringStopGapLF',
     'SpringStopGapRF',
-    'CrossUnhookedPer'
+    'CrossUnhookedPer',
+    'NoseWeight'
     ]
   displayedColumns: string[] = ['attribute', 'values'];
   

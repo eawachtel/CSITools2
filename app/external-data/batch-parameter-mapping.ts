@@ -1395,7 +1395,7 @@ export const inputDisplayNames: any = {
     {'WorkflowName': 'MasterCylinderRDia', 'DisplayName': 'MasterCylinder_RearDia', 'Unit': 'in', 'Scale': '39.3701', 'Offset': ''}
     ,
     'NoseWeight':
-    {'WorkflowName': 'NoseWeight', 'DisplayName': 'NoseWeight', 'Unit': 'lbm', 'Scale': '2.2045', 'Offset': ''}
+    {'WorkflowName': 'NoseWeight', 'DisplayName': 'NoseWeight', 'Unit': 'lbm', 'Scale': '1', 'Offset': ''}
     ,
     'OptionalHeight1X':
     {'WorkflowName': 'OptionalHeight1X', 'DisplayName': 'OptionalHeight1X', 'Unit': 'in', 'Scale': '39.3701', 'Offset': ''}
