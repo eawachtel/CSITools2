@@ -5,6 +5,7 @@ import { max } from 'lodash';
 
 import { NotificationService } from '../../services/notification.service'
 
+
 interface IxyGraph {
   'x': number,
   'y': number
@@ -46,7 +47,7 @@ export class SplineCreatorComponent implements OnInit {
     }
   }
   splineStart:number = 0;
-  springSplineType:string = 'single';
+  springSplineType:string = 'single';  //Options single & cut
   pasteBoxString:string = 'Click box and Paste Ride Rate Data Here (Ctrl + V)'
   displayedColumns: string[] = [];
   dataSource: any[] = [];
@@ -84,12 +85,15 @@ export class SplineCreatorComponent implements OnInit {
     },
   }
   list:any[] = [];
+  loadOffset:number = 0
   secondPointFit:number | undefined;
+  setupSpringLoad:number = 0
   splineCut:number = 0;
   splineEnd:number = 0;
   rideRateOverride:IxyGraph[] = [];
   engagedSpline:IxyGraph[] = [];
   pastedSpringDataPersist:IxyGraph[] = [];
+  pastedSpringDataOffset:IxyGraph[] = [];
   pastedSpringDataMod:IxyGraph[] = [];
 
   constructor(private clipboard: Clipboard, private notificationService: NotificationService) { }
@@ -107,12 +111,12 @@ export class SplineCreatorComponent implements OnInit {
     return max
   }
 
-  public fitLinearSpringStart(data:IxyGraph[]){
+  public async fitLinearSpringStart(data:IxyGraph[]){
     const regression = require('regression');
     let fullSpline:IxyGraph[] = [];
     let fitData:number[][] = [];
     let secondPointX:number = data[1].x;
-    this.secondPointFit = secondPointX;
+    
     data.forEach((item) => {
       if (item.x < secondPointX + 1){
         if (item.y !== undefined && !isNaN(item.y)) {
@@ -120,7 +124,6 @@ export class SplineCreatorComponent implements OnInit {
         }
       }
     });
-
     const result = regression.polynomial(fitData, { order: 2 });
     fullSpline.push(data[0]);
     let count:number = .05;
@@ -136,7 +139,7 @@ export class SplineCreatorComponent implements OnInit {
     fullSpline = fullSpline.slice(0, -1);
 
     data.forEach((item) => {
-      if (item.x > secondPointX) {
+      if (item.x >= secondPointX) {
         fullSpline.push(item)
       }
     })
@@ -165,15 +168,21 @@ export class SplineCreatorComponent implements OnInit {
     this.pastedSpringDataPersist = numberData1;
     this.pasteBoxString = 'Data Pasted';
     }
+    this.processSpringDataPersist();
+  }
+
+  public async processSpringDataPersist(){
     this.splineEnd = await this.findXMaxValue(this.pastedSpringDataPersist);
-    this.pastedSpringDataPersist = await this.fitLinearSpringStart(this.pastedSpringDataPersist);
-    this.pastedSpringDataMod = this.pastedSpringDataPersist;
+    this.pastedSpringDataOffset = await this.offsetLoad();
+    this.pastedSpringDataMod = await this.fitLinearSpringStart(this.pastedSpringDataOffset);
+    let processCutdatafunct = await this.onSplineCut(this.splineCut);
     this.plotSpringSplineData();
   }
 
   public clearSpringSplineData(){
     this.pasteBoxString = 'Click box and Paste Ride Rate Data Here (Ctrl + V)'
     this.pastedSpringDataPersist = [];
+    this.pastedSpringDataOffset = [];
     this.pastedSpringDataMod = [];
     // this.fullSpringCopy = [];
     this.rideRateOverride = [];
@@ -192,7 +201,7 @@ export class SplineCreatorComponent implements OnInit {
 
   public async checkAscendingValues(data:any[]){
     let dataFinal:any[] = [];
-    dataFinal.push(data[0]); //push first value
+    dataFinal.push(data[0]); 
     for (let i = 1; i <= data.length - 1; i++){
       if (data[i].x > data[i - 1].x){
         dataFinal.push(data[i]);
@@ -235,12 +244,13 @@ export class SplineCreatorComponent implements OnInit {
   }
 
   public async onSplineCut(event:any){
-    if (event !== 'event'){
+    let type = typeof(event);
+    if (type === 'object'){
       let cut = +event.target.value;
       this.splineCut = cut;
     }
-    
     if (this.splineCut === 0){return};
+    
     if (this.splineEnd === 0 ||
       this.splineCut === null || this.splineCut === undefined 
       || this.splineCut === null || this.splineCut === undefined)
@@ -250,7 +260,7 @@ export class SplineCreatorComponent implements OnInit {
     let rideRateOverride:IxyGraph[] = [];
     // Ride Rate Override portion (pittail)
     this.rideRateOverride = [];
-    this.pastedSpringDataPersist.forEach((item) => {
+    this.pastedSpringDataMod.forEach((item) => {
       if (this.splineCut !== undefined && item.x <= this.splineCut){
         rideRateOverride.push(item)
       }
@@ -259,15 +269,35 @@ export class SplineCreatorComponent implements OnInit {
     
     let engagedSpline:IxyGraph[] = [];
     // Spring Spline portion (spring)
-    for (let i = 0; i < this.pastedSpringDataPersist.length - 1; i++) {
-      if (this.splineCut < this.pastedSpringDataPersist[i].x && this.pastedSpringDataPersist[i].x < this.splineEnd){
-        engagedSpline.push(this.pastedSpringDataPersist[i]);
+    for (let i = 0; i < this.pastedSpringDataOffset.length - 1; i++) {
+      if (this.splineCut < this.pastedSpringDataOffset[i].x && this.pastedSpringDataOffset[i].x < this.splineEnd){
+        engagedSpline.push(this.pastedSpringDataOffset[i]);
         if (this.pastedSpringDataPersist[i + 1].x > this.splineEnd) { break }
       }
     }
     
     this.engagedSpline = engagedSpline;
     this.plotSpringSplineData();
+  }
+
+  public onOffsetLoad(event:any){
+    this.setupSpringLoad = +event.target.value;
+    this.loadOffset =  this.setupSpringLoad - this.pastedSpringDataPersist[1].y;
+    this.processSpringDataPersist();
+  }
+
+  public async offsetLoad(){
+    let modDataList:{x:number, y:number}[] = [];
+    modDataList.push(this.pastedSpringDataPersist[0]);
+    for (let i = 1; i < this.pastedSpringDataPersist.length; i++){
+      if (this.setupSpringLoad == 0){
+        modDataList.push({x: this.pastedSpringDataPersist[i].x, y: this.pastedSpringDataPersist[i].y});
+      } else{
+        modDataList.push({x: this.pastedSpringDataPersist[i].x, y: this.pastedSpringDataPersist[i].y + this.loadOffset});
+      }
+    }
+    
+    return modDataList;
   }
 
   public async trimEndFullData(){
@@ -359,26 +389,30 @@ export class SplineCreatorComponent implements OnInit {
   }
 
   public plotSpringSplineData() {
+    if (this.pastedSpringDataOffset.length === 0){this.pastedSpringDataOffset = [{x:0, y:0}]}
+    console.log(this.pastedSpringDataOffset)
     let springXMin: number = 0;
     let springXMax: number = 0;
     let springXPersist:number[] = [];
     let springYPersist:number[] = [];
-    this.pastedSpringDataPersist.forEach((item:IxyGraph) => {
-      if (item.x !== undefined || item.y !== undefined) {
-        if (!this.secondPointFit){return}
-        if (item.x > this.secondPointFit || item.x === 0){
-          springXPersist.push(item.x);
-          springYPersist.push(item.y);
+    springXPersist.push(this.pastedSpringDataOffset[0].x);
+    springYPersist.push(this.pastedSpringDataOffset[0].y);
+    for (let i:number=1; i < this.pastedSpringDataOffset.length; i++){
+      let prevItem:IxyGraph = this.pastedSpringDataOffset[i-1];
+      let item:IxyGraph = this.pastedSpringDataOffset[i];
+        if (item.x !== undefined || item.y !== undefined) {
+          if (item.x > prevItem.x || item.x === 0){
+            springXPersist.push(item.x);
+            springYPersist.push(item.y);
+          }
         }
-      }
-    });
+    }
     springXMin = Math.min(...springXPersist) - .1;
     springXMax = Math.max(...springXPersist) + .1;
     
     let dataList:IplotlySplineGraph[] = []
     
     if (this.springSplineType === 'single'){
-
       let fullModX:number[] = [];
       let fullModY:number[] = [];
       this.pastedSpringDataMod.forEach((item:IxyGraph) => {

@@ -1,16 +1,24 @@
 
 <div class='flex-row' style='margin-top: 2vh;'>
     <div>
-        <div style="border:solid; height: 50px; width: 350px; display: flex; align-items: center; justify-content: center; font-size: 14px;"
+        <div class="paste-box"
             (paste)="pasteData($event)">
             {{pasteBoxString}}
         </div>
+    </div>
+    <div style='margin-top: 0;' class='center-item'>
+        <input style='width: 150px; height: 40px; border:2px solid #3f51b5; border-radius: 5px;
+        font-size: 13px; text-align: center;'
+        matInput type="number"
+        placeholder=" Spring Setup Load"
+        (keyup) = "onOffsetLoad($event)">
     </div>
     <div class='center-item'>
         <button mat-raised-button color="primary" 
          (click)= "clearSpringSplineData()">Clear Spring Spline Data
         </button>
     </div>
+    
 </div>
 
 &nbsp;

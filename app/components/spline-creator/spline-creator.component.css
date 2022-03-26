@@ -40,3 +40,14 @@ table {
   flex-basis: 100%;
   flex: 1;
 }
+
+.paste-box{
+  border:solid;
+  height: 50px;
+  width: 350px;
+  display: flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 14px;
+  margin-right: 2vw;
+}

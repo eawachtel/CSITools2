@@ -1,0 +1,15 @@
+.button-class{
+    margin: 1vw;
+}
+
+.button-height{
+    height: 36px;
+}
+
+.flex-row {
+    display: flex; 
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding-top: 1vh;
+    
+ }

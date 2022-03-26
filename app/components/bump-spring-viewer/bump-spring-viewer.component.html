@@ -1,1 +1,24 @@
-<p>bump-spring-viewer works!</p>
+<div style='margin: 2vh;' class='flex-row'>
+    
+    <button style='color:white;' class='button-class button-height' mat-raised-button color="primary"
+        (click) = 'addButton();'>
+        <mat-icon >add</mat-icon>
+    </button>
+    
+    <div *ngFor = 'let file of fileList, index as i' style='margin-left:2vw; margin-right:2vw;'>
+        <input type="file"
+            id="browser"
+            style='display:none'
+            accept=".csv*"
+            (change)="fileChangeListener($event, i)">
+        <span>
+            <button class='button-class' mat-raised-button color="primary" 
+            onclick= "document.getElementById('browser').click()"
+                id='browser'>Select File {{fileList[i].number}}
+            </button>
+        </span>
+        <div class='button-class'>
+            <span>  File Loaded: {{fileList[i].fileName}}</span>
+        </div>
+    </div>
+</div>
