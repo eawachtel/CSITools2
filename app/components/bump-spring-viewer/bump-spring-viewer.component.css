@@ -1,9 +1,13 @@
-.button-class{
-    margin: 1vw;
+.button-text-class{
+    margin: 5px;
 }
 
-.button-height{
-    height: 36px;
+.icon{
+    height: 20px !important;
+    max-width: 10px !important;
+    color:white;
+    margin:0 !important;
+    padding:0 !important;
 }
 
 .flex-row {
@@ -12,4 +16,12 @@
     justify-content: flex-start;
     padding-top: 1vh;
     
+ }
+
+ ::ng-deep .mat-icon {
+     font-size: 16px;
+     width: 20px !important;
+     height: 20px;
+     padding:0 !important;
+     margin:0 !important;
  }
