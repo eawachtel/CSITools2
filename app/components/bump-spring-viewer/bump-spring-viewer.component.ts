@@ -10,16 +10,26 @@ import { Data } from 'plotly.js-dist-min';
 })
 export class BumpSpringViewerComponent implements OnInit {
 
-  fileList: {fileName:string, x:number[], y:number[], hoverX: any, hoverY: any }[] = 
+  fileList: {fileName:string, x:number[], y:number[], hoverX: any, hoverY: any, color: string, delta: number}[] = 
   [
-    {fileName: '', x:[], y:[], hoverX: null, hoverY: null},
-  ];
+    {fileName: '', x:[], y:[], hoverX: null, hoverY: null, color: '', delta: 0},
+  ]
+  colorList:string [] = [
+    'black',
+    'blue',
+    'green',
+    'red',
+    'orange',
+    'purple',
+    'yellow'
+  ]
   hoverX?:any = null;
   hoverY?:any = null;
   loadedFileName: string = '';
   minLoadValue: number = 0;
   loadBtn:number = 0;
   maxX:number = 1.5;
+  maxY:number = 1;
   maxHoverX:number = 0;
   graph = {
     data: [
@@ -29,6 +39,7 @@ export class BumpSpringViewerComponent implements OnInit {
         type: 'scattergl',
         name: '',
         mode: 'lines+markers',
+        hoverinfo: 'none',
         marker: {
           size: 2
         },
@@ -41,7 +52,7 @@ export class BumpSpringViewerComponent implements OnInit {
       {autosize: true, showlegend: true, legend: {x: .45, y: -.2, "orientation": "h"}, 
       title: 'Load vs Displacement',
       xaxis: {title: 'Displacement (in)', automargin: true, zeroline: false, showline: true, range:[0, 1.5]},
-      yaxis: {title: 'Load (lbf)', zeroline: false, showline: true},
+      yaxis: {title: 'Load (lbf)', zeroline: false, showline: true, range:[0, 1]},
       shapes: [
         {
             type: 'line',
@@ -73,12 +84,14 @@ export class BumpSpringViewerComponent implements OnInit {
   }
 
   addButton(){
-    this.fileList.push({fileName: '', x:[], y:[], hoverX: null, hoverY: null});
+    this.fileList.push({fileName: '', x:[], y:[], hoverX: null, hoverY: null, color: '', delta: 0});
   }
 
   public removeFile(i:number){
-    this.fileList.splice(i, 1);
-    this.plotBumpSprings();
+    if (this.fileList.length > 1){
+      this.fileList.splice(i, 1);
+      this.plotBumpSprings();
+    }
   }
 
   public async findMaxX(){
@@ -87,6 +100,14 @@ export class BumpSpringViewerComponent implements OnInit {
       maxArr.push(Math.max(...item.x))
     });
     this.maxX = Math.max(...maxArr);
+  }
+  
+  public async findMaxY(){
+    let maxArr: number[] = [];
+    this.fileList.forEach((item:any)=> {
+      maxArr.push(Math.max(...item.y))
+    });
+    this.maxY = Math.max(...maxArr);
   }
 
   public async findHoverMaxX(){
@@ -99,7 +120,8 @@ export class BumpSpringViewerComponent implements OnInit {
 
   public async onFileClick(i:number){
     this.loadBtn = i;
-    this.fileList[this.loadBtn] = {fileName: '', x:[], y:[], hoverX: null, hoverY: null}
+    let color = this.colorList[i];
+    this.fileList[this.loadBtn] = {fileName: '', x:[], y:[], hoverX: null, hoverY: null, color: color, delta: 0}
   }
 
   public  async fileChangeListener(files:any, i:number){
@@ -157,12 +179,13 @@ export class BumpSpringViewerComponent implements OnInit {
       this.fileList[this.loadBtn]['y'].push(data[j].y);
     }
     let maxX = await this.findMaxX();
+    let maxY = await this.findMaxY();
     this.plotBumpSprings();
   }
 
   plotBumpSprings(){
     let dataList:any = [];
-    this.fileList.forEach((item) => {
+    this.fileList.forEach((item:any) => {
       let dataObj = 
         {
           x: item.x,
@@ -170,10 +193,13 @@ export class BumpSpringViewerComponent implements OnInit {
           type: 'scattergl',
           name: item.fileName,
           mode: 'lines+markers',
+          hoverinfo: 'none',
           marker: {
+            color: item.color,
             size: 3
           },
           line: {
+            color: item.color,
             width: 3
           }
         }
@@ -183,10 +209,10 @@ export class BumpSpringViewerComponent implements OnInit {
     this.graph = {
       data: dataList,
       layout: 
-        {autosize: true, showlegend: true, legend: {x: .45, y: -.2, "orientation": "h"},
+        {autosize: true, showlegend: true, legend: {x: 0, y: -.2, "orientation": "h"},
         title: 'Load vs Displacement',
         xaxis: {title: 'Displacement (in)', automargin: true, zeroline: false, showline: true, range:[0, this.maxX + .05]},
-        yaxis: {title: 'Load (lbf)', zeroline: false, showline: true},
+        yaxis: {title: 'Load (lbf)', zeroline: false, showline: true, range:[0, this.maxY + 100]},
         shapes: shapes,
         margin: {
           l: 70,
@@ -201,53 +227,69 @@ export class BumpSpringViewerComponent implements OnInit {
 
   getShapes(){
     let shapeList = [];
-    shapeList.push(
-      {
-        type: 'line',
-        xref: 'x',
-        yref: 'y',
-        x0: 0,
-        y0: this.hoverY,
-        x1: this.maxHoverX,
-        y1: this.hoverY,
-        line:{
-          color: 'black',
-          width: 1
-        }
-      }
-    )
-    this.fileList.forEach((item:any) => {
-      let shapeObj =
+    if (this.hoverX !== null && this.hoverY !== null){
+      shapeList.push(
         {
           type: 'line',
           xref: 'x',
           yref: 'y',
-          x0: item.hoverX,
-          y0: 0,
-          x1: item.hoverX,
+          x0: 0,
+          y0: this.hoverY,
+          x1: this.maxHoverX,
           y1: this.hoverY,
           line:{
             color: 'black',
-            width: 1
+            width: 2,
+            dash: 'dot'
           }
         }
-      shapeList.push(shapeObj);
+      )
+    }
+    this.fileList.forEach((item:any) => {
+      if (item.hoverX !== null && item.hoverY !== null){
+        let shapeObj =
+          {
+            type: 'line',
+            xref: 'x',
+            yref: 'y',
+            x0: item.hoverX,
+            y0: 0,
+            x1: item.hoverX,
+            y1: this.hoverY,
+            line:{
+              color: item.color,
+              width: 2,
+              dash: 'dot'
+            }
+          }
+        shapeList.push(shapeObj);
+      }
     });
-    console.log(shapeList);
     return shapeList
   }
 
   async onPlotlyHover(event:any){
-    this.hoverX = event.xvals[0];
-    this.hoverY = event.yvals[0];
+    this.hoverX = event.points[0].x;
+    this.hoverY = event.points[0].y;
     this.fileList.forEach((item:any) => {
       let closestY:any = this.findClosest(item.y, this.hoverY);
       item.hoverY = closestY;
       let index = item.y.indexOf(closestY);
       item.hoverX = item.x[index];
+      item.delta = (item.hoverX - this.hoverX).toFixed(3);
     });
     let maxHoverX = await this.findHoverMaxX()
     this.plotBumpSprings();
+  }
+
+  onPlotlyUnhover(event:any){
+    this.fileList.forEach((item:any) => {
+      item.hoverY = null;
+      item.hoverX = null;
+      this.hoverY = null;
+      this.hoverY = null;
+      this.plotBumpSprings();
+    });
   }
 
   public findClosest(arr: number[], num:number) {
