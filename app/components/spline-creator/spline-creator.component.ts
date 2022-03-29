@@ -151,9 +151,6 @@ export class SplineCreatorComponent implements OnInit {
     this.splineCut = 0;
     let clipboardData = event.clipboardData;
     if (clipboardData){
-      // this.fullSpringCopy = [];
-      // this.pigtailSpringCopy = [];
-      // this.engagedSpringCopy = [];
       let pastedText = clipboardData.getData('text');
       let row_data = pastedText.split('\n');
       let numberData1: IxyGraph[] =[];
@@ -184,7 +181,6 @@ export class SplineCreatorComponent implements OnInit {
     this.pastedSpringDataPersist = [];
     this.pastedSpringDataOffset = [];
     this.pastedSpringDataMod = [];
-    // this.fullSpringCopy = [];
     this.rideRateOverride = [];
     this.engagedSpline = [];
     this.splineCut = 0;
@@ -316,8 +312,6 @@ export class SplineCreatorComponent implements OnInit {
     let cut = +event.target.value;
     if (cut === 0){ return };
     this.splineEnd = cut;
-    
-    
     this.onSplineCut('event');
     this.pastedSpringDataMod = await this.trimEndFullData();
 
@@ -390,7 +384,6 @@ export class SplineCreatorComponent implements OnInit {
 
   public plotSpringSplineData() {
     if (this.pastedSpringDataOffset.length === 0){this.pastedSpringDataOffset = [{x:0, y:0}]}
-    console.log(this.pastedSpringDataOffset)
     let springXMin: number = 0;
     let springXMax: number = 0;
     let springXPersist:number[] = [];
