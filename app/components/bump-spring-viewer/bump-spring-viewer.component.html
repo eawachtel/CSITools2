@@ -25,7 +25,11 @@
             <span>  File Loaded: {{fileList[i].fileName}}</span>
         </div>
         <div>
-            X: {{file.hoverX}}
+            <span>X: {{file.hoverX}}</span>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            <span  >Delta: {{file.delta}}</span>
         </div>
         <div>
             Y: {{file.hoverY}}
@@ -33,9 +37,9 @@
     </div>
 </div>
 <div>
-    <div style='margin: 2vh; padding: 10px; border: 2px solid black; border-radius: 10px'>
+    <div style='margin: 2vh; padding: 10px; border: 2px solid black; border-radius: 10px; height: 60vh;'>
         <plotly-plot [data]="graph.data" [layout]="graph.layout"
-            [useResizeHandler]="true" (hover) = "onPlotlyHover($event)" [style]="{position: 'relative', width: '100%', height: '100%'}">
+            [useResizeHandler]="true" (hover) = "onPlotlyHover($event)" (unhover) = "onPlotlyUnhover($event)" [style]="{position: 'relative', width: '100%', height: '100%'}">
         </plotly-plot>
     </div>
 </div>
