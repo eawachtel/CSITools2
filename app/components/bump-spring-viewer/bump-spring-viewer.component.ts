@@ -167,7 +167,7 @@ export class BumpSpringViewerComponent implements OnInit {
       let x = +data[i][0];
       let y = +data[i][1];
       if (+data[i][0] > +data[i - 1][0]){
-        indexedData.push({x: data[i][0] - zeroTravel, y: data[i][1] - zeroLoad})
+        indexedData.push({x: data[i][0] - zeroTravel, y: (data[i][1] - zeroLoad).toFixed(0)})
       }
     }
     return indexedData
